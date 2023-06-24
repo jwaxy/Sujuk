@@ -11,6 +11,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,6 +27,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.util.math.Vec3d;
 import net.wurstclient.WurstClient;
 import net.wurstclient.event.EventManager;
@@ -45,10 +47,21 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	implements IClientPlayerEntity
 {
 	@Shadow
+	private float mountJumpStrength;
+	@Shadow
+	public float lastYaw;
+	@Shadow
+	public float lastPitch;
+	@Shadow
+	public ClientPlayNetworkHandler networkHandler;
+
+	@Shadow
 	@Final
 	protected MinecraftClient client;
 	
+	@Unique
 	private Screen tempCurrentScreen;
+	@Unique
 	private boolean hideNextItemUse;
 	
 	public ClientPlayerEntityMixin(WurstClient wurst, ClientWorld world,
@@ -105,6 +118,15 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	private void afterIsUsingItem(CallbackInfo ci)
 	{
 		hideNextItemUse = false;
+	}
+	
+	@Inject(at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMountJumpStrength()F",
+		ordinal = 0), method = "tickMovement()V")
+	private void setHorseJump(CallbackInfo ci)
+	{
+		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
+			mountJumpStrength = 1;
 	}
 	
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
