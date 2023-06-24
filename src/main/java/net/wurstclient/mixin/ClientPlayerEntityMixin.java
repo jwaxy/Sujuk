@@ -11,6 +11,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,6 +31,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.util.math.Vec3d;
 import net.wurstclient.WurstClient;
 import net.wurstclient.event.EventManager;
@@ -49,10 +51,21 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	implements IClientPlayerEntity
 {
 	@Shadow
+	private float mountJumpStrength;
+	@Shadow
+	public float lastYaw;
+	@Shadow
+	public float lastPitch;
+	@Shadow
+	public ClientPlayNetworkHandler networkHandler;
+
+	@Shadow
 	@Final
 	protected MinecraftClient client;
 	
+	@Unique
 	private Screen tempCurrentScreen;
+	@Unique
 	private boolean hideNextItemUse;
 	
 	public ClientPlayerEntityMixin(WurstClient wurst, ClientWorld world,
@@ -82,10 +95,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldOmniSprint())
 			return input.getMovementInput().length() > 1e-5F;
-		
+
 		return original.call(input);
 	}
-	
+
 	/**
 	 * This mixin runs just before the tickMovement() method calls
 	 * isUsingItem(), so that the onIsUsingItem() mixin knows which
@@ -128,6 +141,15 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		hideNextItemUse = false;
 	}
 	
+	@Inject(at = @At(value = "INVOKE",
+		target = "Lnet/minecraft/client/network/ClientPlayerEntity;getMountJumpStrength()F",
+		ordinal = 0), method = "tickMovement()V")
+	private void setHorseJump(CallbackInfo ci)
+	{
+		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
+			mountJumpStrength = 1;
+	}
+
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
 	private void onSendMovementPacketsHEAD(CallbackInfo ci)
 	{
@@ -200,7 +222,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldSprintHungry())
 			cir.setReturnValue(true);
 	}
-	
+
 	/**
 	 * Getter method for what used to be airStrafingSpeed.
 	 * Overridden to allow for the speed to be modified by hacks.
@@ -307,14 +329,14 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		
 		return super.hasStatusEffect(effect);
 	}
-	
+
 	@Override
 	public float getStepHeight()
 	{
 		return WurstClient.INSTANCE.getHax().stepHack
 			.adjustStepHeight(super.getStepHeight());
 	}
-	
+
 	// getter for GENERIC_BLOCK_INTERACTION_RANGE
 	@Override
 	public double getBlockInteractionRange()
@@ -322,10 +344,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		HackList hax = WurstClient.INSTANCE.getHax();
 		if(hax == null || !hax.reachHack.isEnabled())
 			return super.getBlockInteractionRange();
-		
+
 		return hax.reachHack.getReachDistance();
 	}
-	
+
 	// getter for GENERIC_ENTITY_INTERACTION_RANGE
 	@Override
 	public double getEntityInteractionRange()
@@ -333,7 +355,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		HackList hax = WurstClient.INSTANCE.getHax();
 		if(hax == null || !hax.reachHack.isEnabled())
 			return super.getEntityInteractionRange();
-		
+
 		return hax.reachHack.getReachDistance();
 	}
 }
