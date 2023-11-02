@@ -33,11 +33,9 @@ jobs:
       uses: gradle/gradle-build-action@v2
     - name: Execute Gradle build
       run: ./gradlew build
-    - name: VirusTotal scan
-      if: github.event_name == 'push'
-      uses: crazy-max/ghaction-virustotal@v4
+    - name: Upload built jar to artifacts
+      # if: github.event_name == 'push'
+      uses: actions/upload-artifact@v3
       with:
-        vt_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
-        files: |
-          ./build/libs/*.jar
-      continue-on-error: true
+        name: sujuk-dev-build
+        path: ./build/libs/*.jar
