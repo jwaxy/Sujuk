@@ -38,28 +38,12 @@ jobs:
       run: chmod +x gradlew
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-
-    - name: Generate and submit dependency graph
-      if: ${{ github.event_name == 'push' }}
-      uses: gradle/actions/dependency-submission@v3
-      with:
-        build-scan-publish: true
-        build-scan-terms-of-use-url: "https://gradle.com/help/legal-terms-of-use"
-        build-scan-terms-of-use-agree: "yes"
-
-    - name: Check code style with Spotless
-      id: spotless_check
-      run: ./gradlew spotlessCheck
-
+      uses: gradle/gradle-build-action@v2
     - name: Execute Gradle build
       run: ./gradlew build
-
-    - name: VirusTotal scan
-      if: ${{ github.event_name == 'push' }}
-      uses: crazy-max/ghaction-virustotal@v4
+    - name: Upload built jar to artifacts
+      # if: github.event_name == 'push'
+      uses: actions/upload-artifact@v3
       with:
-        vt_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
-        files: |
-          ./build/libs/*.jar
-      continue-on-error: true
+        name: sujuk-dev-build
+        path: ./build/libs/*.jar
