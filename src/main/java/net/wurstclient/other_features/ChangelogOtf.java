@@ -14,7 +14,7 @@ import net.wurstclient.WurstClient;
 import net.wurstclient.other_feature.OtherFeature;
 import net.wurstclient.update.Version;
 
-@SearchTags({"change log", "wurst update", "release notes", "what's new",
+@SearchTags({"change log", "sujuk update", "release notes", "what's new",
 	"what is new", "new features", "recently added features"})
 @DontBlock
 public final class ChangelogOtf extends OtherFeature
@@ -33,8 +33,8 @@ public final class ChangelogOtf extends OtherFeature
 	@Override
 	public void doPrimaryAction()
 	{
-		String link = new Version(WurstClient.VERSION).getChangelogLink()
-			+ "?utm_source=Wurst+Client&utm_medium=ChangelogOtf&utm_content=View+Changelog";
+		String link = new Version(WurstClient.VERSION).getChangelogLink();
+//			+ "?utm_source=Wurst+Client&utm_medium=ChangelogOtf&utm_content=View+Changelog";
 		Util.getOperatingSystem().open(link);
 	}
 }

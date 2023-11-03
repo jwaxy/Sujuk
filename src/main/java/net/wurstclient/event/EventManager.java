@@ -72,7 +72,7 @@ public final class EventManager
 		{
 			e.printStackTrace();
 			
-			CrashReport report = CrashReport.create(e, "Firing Wurst event");
+			CrashReport report = CrashReport.create(e, "Firing Sujuk event");
 			CrashReportSection section = report.addElement("Affected event");
 			section.add("Event class", () -> event.getClass().getName());
 			
@@ -101,7 +101,7 @@ public final class EventManager
 			e.printStackTrace();
 			
 			CrashReport report =
-				CrashReport.create(e, "Adding Wurst event listener");
+				CrashReport.create(e, "Adding Sujuk event listener");
 			CrashReportSection section = report.addElement("Affected listener");
 			section.add("Listener type", () -> type.getName());
 			section.add("Listener class", () -> listener.getClass().getName());
@@ -125,7 +125,7 @@ public final class EventManager
 			e.printStackTrace();
 			
 			CrashReport report =
-				CrashReport.create(e, "Removing Wurst event listener");
+				CrashReport.create(e, "Removing Sujuk event listener");
 			CrashReportSection section = report.addElement("Affected listener");
 			section.add("Listener type", () -> type.getName());
 			section.add("Listener class", () -> listener.getClass().getName());

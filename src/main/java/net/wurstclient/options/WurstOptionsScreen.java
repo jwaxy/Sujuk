@@ -70,7 +70,7 @@ public class WurstOptionsScreen extends Screen
 		
 		new WurstOptionsButton(-154, 48,
 			() -> "Count Users: " + (analytics.isEnabled() ? "ON" : "OFF"),
-			"Counts how many people are using Wurst\n"
+			"Counts how many people are using Sujuk\n"
 				+ "and which versions are the most popular.\n"
 				+ "We use this data to decide when to stop\n"
 				+ "supporting old Minecraft versions.\n\n"
@@ -120,24 +120,24 @@ public class WurstOptionsScreen extends Screen
 	{
 		OperatingSystem os = Util.getOperatingSystem();
 		
-		new WurstOptionsButton(54, 24, () -> "Official Website",
-			"WurstClient.net", b -> os.open(
-				"https://www.wurstclient.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Official+Website"));
+		new WurstOptionsButton(54, 24, () -> "Website",
+			"click me!", b -> os.open(
+				"https://jwaxy.is-a.dev/Sujuk/"));
 		
-		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
-			b -> os.open(
-				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
-		
-		new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
-			b -> os.open(
-				"https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
-		
-		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
-			b -> os.open("https://www.wurstclient.net/twitter/"));
-		
-		new WurstOptionsButton(54, 120, () -> "Donate",
-			"WurstClient.net/donate", b -> os.open(
-				"https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
+//		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
+//			b -> os.open(
+//				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
+//
+//		new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
+//			b -> os.open(
+//				"https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
+//
+//		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
+//			b -> os.open("https://www.wurstclient.net/twitter/"));
+//
+//		new WurstOptionsButton(54, 120, () -> "Donate",
+//			"WurstClient.net/donate", b -> os.open(
+//				"https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
 	}
 	
 	@Override
@@ -166,7 +166,7 @@ public class WurstOptionsScreen extends Screen
 		int y1 = 40;
 		int y2 = height / 4 + 24 - 28;
 		
-		context.drawCenteredTextWithShadow(tr, "Wurst Options", middleX, y1,
+		context.drawCenteredTextWithShadow(tr, "Sujuk Options", middleX, y1,
 			0xffffff);
 		
 		context.drawCenteredTextWithShadow(tr, "Settings", middleX - 104, y2,

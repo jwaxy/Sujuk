@@ -50,7 +50,7 @@ public final class CrashChestHack extends Hack
 		NbtList nbtList = new NbtList();
 		for(int i = 0; i < 40000; i++)
 			nbtList.add(new NbtList());
-		nbtCompound.put("www.wurstclient.net", nbtList);
+		nbtCompound.put("EatSujuk", nbtList);
 		stack.setNbt(nbtCompound);
 		stack.setCustomName(Text.literal("Copy Me"));
 		

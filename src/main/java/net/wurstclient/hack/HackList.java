@@ -208,7 +208,7 @@ public final class HackList implements UpdateListener
 			
 		}catch(Exception e)
 		{
-			String message = "Initializing Wurst hacks";
+			String message = "Initializing Sujuk \"utilities\"";
 			CrashReport report = CrashReport.create(e, message);
 			throw new CrashException(report);
 		}

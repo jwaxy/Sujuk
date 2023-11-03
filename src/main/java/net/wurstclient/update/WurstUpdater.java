@@ -31,7 +31,7 @@ public final class WurstUpdater implements UpdateListener
 	{
 		if(thread == null)
 		{
-			thread = new Thread(this::checkForUpdates, "WurstUpdater");
+			thread = new Thread(this::checkForUpdates, "SujukUpdater");
 			thread.start();
 			return;
 		}
@@ -54,7 +54,7 @@ public final class WurstUpdater implements UpdateListener
 		try
 		{
 			WsonArray wson = JsonUtils.parseURLToArray(
-				"https://api.github.com/repos/Wurst-Imperium/Wurst-MCX2/releases");
+				"https://api.github.com/repos/jwaxy/Sujuk/releases"); //hopefully won't crash cuz it's empty
 			
 			for(WsonObject release : wson.getAllObjects())
 			{
@@ -88,7 +88,8 @@ public final class WurstUpdater implements UpdateListener
 			String text = "An error occurred while checking for updates."
 				+ " Click \u00a7nhere\u00a7r to check manually.";
 			String url =
-				"https://www.wurstclient.net/download/?utm_source=Wurst+Client&utm_medium=WurstUpdater+chat+message&utm_content=An+error+occurred+while+checking+for+updates.";
+					"https://github.com/jwaxy/Sujuk/";
+//				"https://www.wurstclient.net/download/?utm_source=Wurst+Client&utm_medium=WurstUpdater+chat+message&utm_content=An+error+occurred+while+checking+for+updates.";
 			showLink(text, url);
 			return;
 		}
@@ -96,12 +97,13 @@ public final class WurstUpdater implements UpdateListener
 		if(!outdated)
 			return;
 		
-		String textPart1 = "Wurst " + latestVersion + " MC"
+		String textPart1 = "Sujuk " + latestVersion + " MC"
 			+ WurstClient.MC_VERSION + " is now available.";
 		String text =
 			textPart1 + " Click \u00a7nhere\u00a7r to download the update.";
 		String url =
-			"https://www.wurstclient.net/download/?utm_source=Wurst+Client&utm_medium=WurstUpdater+chat+message&utm_content="
+				"https://github.com/jwaxy/Sujuk/?utm_content=" //TODO:
+//			"https://www.wurstclient.net/download/?utm_source=Wurst+Client&utm_medium=WurstUpdater+chat+message&utm_content="
 				+ URLEncoder.encode(textPart1, StandardCharsets.UTF_8);
 		showLink(text, url);
 	}

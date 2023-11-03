@@ -37,7 +37,7 @@ public final class BindsCmd extends Command
 			".binds load-profile <file>", ".binds save-profile <file>",
 			".binds list-profiles [<page>]", ".binds remove-all",
 			".binds reset", "Multiple hacks/commands must be separated by ';'.",
-			"Profiles are saved in '.minecraft/wurst/keybinds'.");
+			"Profiles are saved in '.minecraft/sujuk/keybinds'.");
 	}
 	
 	@Override

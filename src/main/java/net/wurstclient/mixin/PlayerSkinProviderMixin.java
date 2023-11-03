@@ -60,7 +60,7 @@ public abstract class PlayerSkinProviderMixin
 			
 		}catch(Exception e)
 		{
-			System.err.println("[Wurst] Failed to load cape for '" + name
+			System.err.println("[Sujuk] Failed to load cape for '" + name
 				+ "' (" + uuid + ")");
 			
 			e.printStackTrace();
@@ -87,7 +87,8 @@ public abstract class PlayerSkinProviderMixin
 		try
 		{
 			// TODO: download capes to file
-			URL url = new URL("https://www.wurstclient.net/api/v1/capes.json");
+//			URL url = new URL("https://www.wurstclient.net/api/v1/capes.json"); //maybe reimplement this
+			URL url = new URL("lol");
 			
 			capes =
 				JsonParser.parseReader(new InputStreamReader(url.openStream()))
@@ -96,7 +97,7 @@ public abstract class PlayerSkinProviderMixin
 		}catch(Exception e)
 		{
 			System.err
-				.println("[Wurst] Failed to load capes from wurstclient.net!");
+				.println("[Sujuk] Failed to load capes from the server!");
 			
 			e.printStackTrace();
 		}

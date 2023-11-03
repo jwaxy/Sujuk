@@ -88,7 +88,7 @@ public final class CmdProcessor implements ChatOutputListener
 			
 		}catch(Throwable e)
 		{
-			CrashReport report = CrashReport.create(e, "Running Wurst command");
+			CrashReport report = CrashReport.create(e, "Running Sujuk command");
 			CrashReportSection section = report.addElement("Affected command");
 			section.add("Command input", () -> input);
 			throw new CrashException(report);

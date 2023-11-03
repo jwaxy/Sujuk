@@ -32,7 +32,7 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 {
 	private final String[] defaultList = {"password", "passwort", "password1",
 		"passwort1", "password123", "passwort123", "pass", "pw", "pw1", "pw123",
-		"hallo", "Wurst", "wurst", "1234", "12345", "123456", "1234567",
+		"hallo", "1234", "12345", "123456", "1234567",
 		"12345678", "123456789", "login", "register", "test", "sicher", "me",
 		"penis", "penis1", "penis123", "minecraft", "minecraft1",
 		"minecraft123", "mc", "admin", "server", "yourmom", "tester", "account",
@@ -236,7 +236,7 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 	public void onReceivedMessage(ChatInputEvent event)
 	{
 		String message = event.getComponent().getString();
-		if(message.startsWith("\u00a7c[\u00a76Wurst\u00a7c]\u00a7f "))
+		if(message.startsWith("\u00a7c[\u00a76Sujuk\u00a7c]\u00a7f "))
 			return;
 		
 		String msgLowerCase = message.toLowerCase();

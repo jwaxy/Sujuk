@@ -27,7 +27,7 @@ import net.wurstclient.other_features.WurstLogoOtf;
 public final class WurstLogo
 {
 	private static final Identifier texture =
-		new Identifier("wurst", "wurst_128.png");
+		new Identifier("wurst", "sujuk_128.png");
 	
 	public void render(DrawContext context)
 	{

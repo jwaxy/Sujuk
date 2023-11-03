@@ -39,7 +39,7 @@ public final class TooManyHaxCmd extends Command
 			".toomanyhax list [<page>]", ".toomanyhax load-profile <file>",
 			".toomanyhax save-profile <file>",
 			".toomanyhax list-profiles [<page>]",
-			"Profiles are saved in '.minecraft/wurst/toomanyhax'.");
+			"Profiles are saved in '.minecraft/sujuk/toomanyhax'.");
 	}
 	
 	@Override
@@ -137,7 +137,7 @@ public final class TooManyHaxCmd extends Command
 		ChatUtils.message("All* features blocked.");
 		ChatUtils
 			.message("*Note: A few features cannot be blocked because they");
-		ChatUtils.message("are required for Wurst to work properly.");
+		ChatUtils.message("are required for Sujuk to work properly.");
 	}
 	
 	private void unblockAll()

@@ -108,7 +108,7 @@ task github(dependsOn: moveDevLibs) {
 
 	doLast {
 		def github = GitHub.connectUsingOAuth(ENV.GITHUB_TOKEN as String)
-		def repository = github.getRepository("Wurst-Imperium/Wurst-MCX2")
+		def repository = github.getRepository("jwaxy/Sujuk")
 		def ghVersion = version.substring(0, version.indexOf("-"))
 		
 		def ghRelease = repository.getReleaseByTagName(ghVersion as String)

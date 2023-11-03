@@ -53,7 +53,7 @@ public final class OtfList
 			
 		}catch(Exception e)
 		{
-			String message = "Initializing other Wurst features";
+			String message = "Initializing other Sujuk features";
 			CrashReport report = CrashReport.create(e, message);
 			throw new CrashException(report);
 		}
