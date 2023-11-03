@@ -54,10 +54,10 @@ public final class AutoCompleteHack extends Hack
 		completer = new OpenAiMessageCompleter(modelSettings);
 		
 		if(completer instanceof OpenAiMessageCompleter
-			&& System.getenv("WURST_OPENAI_KEY") == null)
+			&& System.getenv("SUJUK_OPENAI_KEY") == null)
 		{
 			ChatUtils.error("API key not found. Please set the"
-				+ " WURST_OPENAI_KEY environment variable and reboot.");
+				+ " SUJUK_OPENAI_KEY environment variable and reboot.");
 			setEnabled(false);
 			return;
 		}

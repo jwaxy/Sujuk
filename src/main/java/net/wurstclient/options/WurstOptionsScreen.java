@@ -88,7 +88,7 @@ public class WurstOptionsScreen extends Screen
 		
 		new WurstOptionsButton(-154, 96,
 			() -> "Translations: " + (!forceEnglish.isChecked() ? "ON" : "OFF"),
-			"Allows text in Wurst to be displayed in other languages than"
+			"Allows text in Sujuk to be displayed in other languages than"
 				+ " English. It will use the same language that Minecraft is"
 				+ " set to.\n\n" + "This is an experimental feature!",
 			b -> forceEnglish.setChecked(!forceEnglish.isChecked()));
@@ -118,30 +118,27 @@ public class WurstOptionsScreen extends Screen
 		OperatingSystem os = Util.getOperatingSystem();
 		
 		new WurstOptionsButton(54, 24, () -> "Official Website",
-			"§n§lWurstClient.net", b -> os.open(
+			"WurstClient.net", b -> os.open(
 				"https://www.wurstclient.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Official+Website"));
 		
-		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "§n§lWurst.Wiki\n"
-			+ "We are looking for volunteers to help us expand"
-			+ " the wiki and keep it up to date with the latest Wurst updates.",
+		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
 			b -> os.open(
 				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
 		
-		new WurstOptionsButton(54, 72, () -> "WurstForum", "§n§lWurstForum.net",
-			b -> os.open(
-				"https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
-		
-		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
-			b -> os.open("https://www.wurstclient.net/twitter/"));
-		
-		new WurstOptionsButton(54, 120, () -> "Donate",
-			"§n§lWurstClient.net/donate\n"
-				+ "Donate now to help me keep the Wurst Client alive and free"
-				+ " to use for everyone.\n\n"
-				+ "Every bit helps and is much appreciated! You can also get a"
-				+ " few cool perks in return.",
-			b -> os.open(
-				"https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
+//		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
+//			b -> os.open(
+//				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
+//
+//		new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
+//			b -> os.open(
+//				"https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
+//
+//		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
+//			b -> os.open("https://www.wurstclient.net/twitter/"));
+//
+//		new WurstOptionsButton(54, 120, () -> "Donate",
+//			"WurstClient.net/donate", b -> os.open(
+//				"https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
 	}
 	
 	@Override
@@ -170,7 +167,7 @@ public class WurstOptionsScreen extends Screen
 		int y1 = 40;
 		int y2 = height / 4 + 24 - 28;
 		
-		context.drawCenteredTextWithShadow(tr, "Wurst Options", middleX, y1,
+		context.drawCenteredTextWithShadow(tr, "Sujuk Options", middleX, y1,
 			0xffffff);
 		
 		context.drawCenteredTextWithShadow(tr, "Settings", middleX - 104, y2,
@@ -219,7 +216,7 @@ public class WurstOptionsScreen extends Screen
 				this.tooltip = Arrays.asList();
 			else
 			{
-				String[] lines = ChatUtils.wrapText(tooltip, 200).split("\n");
+				String[] lines = tooltip.split("\n");
 				
 				Text[] lines2 = new Text[lines.length];
 				for(int i = 0; i < lines.length; i++)

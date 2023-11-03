@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "wurst",
+  "id": "sujuk",
   "version": "${version}",
 
-  "name": "Wurst Client",
-  "description": "Wurst Wurst Wurst!",
+  "name": "Sujuk",
+  "description": "It is delicious!",
   "authors": [
-    "Alexander01998"
+    "jwaxy", "Alexander01998"
   ],
   "contact": {
-    "homepage": "https://www.wurstclient.net/?utm_source=Wurst+Client&utm_medium=ModMenu&utm_content=Website",
-    "issues": "https://www.wurstclient.net/wurst7issues/",
-    "sources": "https://www.wurstclient.net/wurst7sources/"
+    "homepage": "https://jwaxy.is-a.dev/Sujuk/",
+    "issues": "https://github.com/jwaxy/Sujuk/issues",
+    "sources": "https://github.com/jwaxy/Sujuk"
   },
 
   "license": "GPL-3.0-or-later",
@@ -35,7 +35,7 @@
     "java": ">=21"
   },
   "suggests": {
-    "mo_glass": "*"
+    "meteor-client": "*"
   },
   "breaks": {
     "wi_zoom": "*",
@@ -45,9 +45,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "Wiki": "https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=ModMenu&utm_content=Wiki",
-        "Forum": "https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=ModMenu&utm_content=Forum",
-        "Donate": "https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=ModMenu&utm_content=Donate"
+
       }
     }
   }

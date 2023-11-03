@@ -28,8 +28,8 @@ public final class WikiDataExportOtf extends OtherFeature
 	{
 		super("WikiDataExport",
 			"Creates a JSON file full of technical details about all the"
-				+ " different features and settings in this version of Wurst."
-				+ " Primarily used to update the Wurst Wiki.");
+				+ " different features and settings in this version of Sujuk."
+				+ " Primarily used to update the Wurst Sujuk.");
 	}
 	
 	@Override

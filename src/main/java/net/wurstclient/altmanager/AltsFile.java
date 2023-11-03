@@ -44,7 +44,7 @@ public final class AltsFile
 			
 		}catch(IOException e)
 		{
-			System.out.println("Couldn't create '.Wurst encryption' folder.");
+			System.out.println("Couldn't create '.Sujuk_Encryption' folder.");
 			e.printStackTrace();
 			folderException = e;
 			return;
@@ -143,7 +143,7 @@ public final class AltsFile
 			
 		}catch(IOException e)
 		{
-			System.out.println("Couldn't create '.Wurst encryption' folder.");
+			System.out.println("Couldn't create '.Sujuk_Encryption' folder.");
 			e.printStackTrace();
 			folderException = e;
 			return;

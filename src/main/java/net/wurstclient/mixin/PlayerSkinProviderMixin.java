@@ -34,7 +34,7 @@ public abstract class PlayerSkinProviderMixin
 {
 	@Unique
 	private static HashMap<String, String> capes;
-	
+
 	@Unique
 	private MinecraftProfileTexture currentCape;
 	
@@ -61,8 +61,8 @@ public abstract class PlayerSkinProviderMixin
 			
 		}catch(Exception e)
 		{
-			System.err
-				.println("[Wurst] Failed to load cape for UUID " + uuidString);
+			System.err.println("[Sujuk] Failed to load cape for '" + name
+				+ "' (" + uuid + ")");
 			
 			e.printStackTrace();
 		}
@@ -92,7 +92,7 @@ public abstract class PlayerSkinProviderMixin
 			capes = new HashMap<>();
 			Pattern uuidPattern = Pattern.compile(
 				"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
-			
+
 			// download cape list from wurstclient.net
 			WsonObject rawCapes = JsonUtils.parseURLToObject(
 				"https://www.wurstclient.net/api/v1/capes.json");
@@ -103,14 +103,14 @@ public abstract class PlayerSkinProviderMixin
 			{
 				String name = entry.getKey();
 				String capeURL = entry.getValue();
-				
+
 				// check if name is already a UUID
 				if(uuidPattern.matcher(name).matches())
 				{
 					capes.put(name, capeURL);
 					continue;
 				}
-				
+
 				// convert name to offline UUID
 				String offlineUUID = "" + Uuids.getOfflinePlayerUuid(name);
 				capes.put(offlineUUID, capeURL);
@@ -119,7 +119,7 @@ public abstract class PlayerSkinProviderMixin
 		}catch(Exception e)
 		{
 			System.err
-				.println("[Wurst] Failed to load capes from wurstclient.net!");
+				.println("[Sujuk] Failed to load capes from the server!");
 			
 			e.printStackTrace();
 		}

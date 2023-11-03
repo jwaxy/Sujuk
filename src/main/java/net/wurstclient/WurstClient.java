@@ -87,14 +87,14 @@ public enum WurstClient
 	
 	public void initialize()
 	{
-		System.out.println("Starting Wurst Client...");
+		System.out.println("Starting Sujuk...");
 		
 		MC = MinecraftClient.getInstance();
 		IMC = (IMinecraftClient)MC;
 		wurstFolder = createWurstFolder();
 		
-		String trackingID = "UA-52838431-5";
-		String hostname = "client.wurstclient.net";
+		String trackingID = "lol";
+		String hostname = "sujuk";
 		Path analyticsFile = wurstFolder.resolve("analytics.json");
 		analytics = new WurstAnalytics(trackingID, hostname, analyticsFile);
 		
@@ -155,13 +155,13 @@ public enum WurstClient
 		KeyBindingHelper.registerKeyBinding(zoomKey);
 		
 		analytics.trackPageView("/mc" + MC_VERSION + "/v" + VERSION,
-			"Wurst " + VERSION + " MC" + MC_VERSION);
+			"Sujuk " + VERSION + " MC" + MC_VERSION);
 	}
 	
 	private Path createWurstFolder()
 	{
 		Path dotMinecraftFolder = MC.runDirectory.toPath().normalize();
-		Path wurstFolder = dotMinecraftFolder.resolve("wurst");
+		Path wurstFolder = dotMinecraftFolder.resolve("sujuk");
 		
 		try
 		{
@@ -170,7 +170,7 @@ public enum WurstClient
 		}catch(IOException e)
 		{
 			throw new RuntimeException(
-				"Couldn't create .minecraft/wurst folder.", e);
+				"Couldn't create .minecraft/sujuk folder.", e);
 		}
 		
 		return wurstFolder;
