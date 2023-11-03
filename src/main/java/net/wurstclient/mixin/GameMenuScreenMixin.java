@@ -35,7 +35,7 @@ import net.wurstclient.options.WurstOptionsScreen;
 public abstract class GameMenuScreenMixin extends Screen
 {
 	private static final Identifier WURST_TEXTURE =
-		new Identifier("wurst", "wurst_128.png");
+		new Identifier("wurst", "sujuk_128.png");
 	
 	private ButtonWidget wurstOptionsButton;
 	
@@ -77,7 +77,7 @@ public abstract class GameMenuScreenMixin extends Screen
 		float u = 0;
 		float v = 0;
 		context.drawTexture(WURST_TEXTURE, x, y, u, v, w, h, fw, fh);
-		
+
 		GL11.glDisable(GL11.GL_BLEND);
 	}
 	

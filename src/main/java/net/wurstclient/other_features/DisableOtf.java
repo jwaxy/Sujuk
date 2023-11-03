@@ -12,15 +12,15 @@ import net.wurstclient.SearchTags;
 import net.wurstclient.other_feature.OtherFeature;
 import net.wurstclient.settings.CheckboxSetting;
 
-@SearchTags({"turn off", "hide wurst logo", "ghost mode", "stealth mode",
+@SearchTags({"turn off", "hide sujuk logo", "ghost mode", "stealth mode",
 	"vanilla Minecraft"})
 @DontBlock
 public final class DisableOtf extends OtherFeature
 {
 	private final CheckboxSetting hideEnableButton = new CheckboxSetting(
 		"Hide enable button",
-		"Removes the \"Enable Wurst\" button as soon as you close the Statistics screen."
-			+ " You will have to restart the game to re-enable Wurst.",
+		"Removes the \"Enable Sujuk\" button as soon as you close the Statistics screen."
+			+ " You will have to restart the game to re-enable Sujuk.",
 		false);
 	
 	public DisableOtf()

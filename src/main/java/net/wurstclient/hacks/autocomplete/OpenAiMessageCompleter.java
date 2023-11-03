@@ -92,7 +92,7 @@ public final class OpenAiMessageCompleter extends MessageCompleter
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type", "application/json");
 		conn.setRequestProperty("Authorization",
-			"Bearer " + System.getenv("WURST_OPENAI_KEY"));
+			"Bearer " + System.getenv("SUJUK_OPENAI_KEY"));
 		
 		// set the request body
 		conn.setDoOutput(true);
