@@ -60,7 +60,9 @@ public enum WurstClient
 	
 	public static final String VERSION = "7.43";
 	public static final String MC_VERSION = "1.20.6";
-	
+
+    public static String CMD_PREFIX;
+    
 	private WurstAnalytics analytics;
 	private EventManager eventManager;
 	private AltManager altManager;
@@ -88,7 +90,9 @@ public enum WurstClient
 	public void initialize()
 	{
 		System.out.println("Starting Sujuk...");
-		
+
+		CMD_PREFIX = ","; //TODO: make it changeable in settings
+
 		MC = MinecraftClient.getInstance();
 		IMC = (IMinecraftClient)MC;
 		wurstFolder = createWurstFolder();
@@ -185,13 +189,13 @@ public enum WurstClient
 			try
 			{
 				return String.format(string, args);
-				
+
 			}catch(IllegalFormatException e)
 			{
 				return key;
 			}
 		}
-		
+
 		// This extra check is necessary because I18n.translate() doesn't
 		// always return the key when the translation is missing. If the key
 		// contains a '%', it will return "Format Error: key" instead.
