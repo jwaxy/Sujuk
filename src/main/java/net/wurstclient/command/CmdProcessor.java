@@ -17,6 +17,8 @@ import net.wurstclient.events.ChatOutputListener;
 import net.wurstclient.hacks.TooManyHaxHack;
 import net.wurstclient.util.ChatUtils;
 
+import static net.wurstclient.WurstClient.CMD_PREFIX;
+
 public final class CmdProcessor implements ChatOutputListener
 {
 	private final CmdList cmds;
@@ -33,11 +35,11 @@ public final class CmdProcessor implements ChatOutputListener
 			return;
 		
 		String message = event.getOriginalMessage().trim();
-		if(!message.startsWith("."))
+		if(!message.startsWith(CMD_PREFIX))
 			return;
 		
 		event.cancel();
-		process(message.substring(1));
+		process(message.substring(CMD_PREFIX.length()));
 	}
 	
 	public void process(String input)
@@ -61,7 +63,7 @@ public final class CmdProcessor implements ChatOutputListener
 			e.printToChat();
 		}
 	}
-	
+
 	private Command parseCmd(String input) throws CmdNotFoundException
 	{
 		String cmdName = input.split(" ")[0];
@@ -103,23 +105,27 @@ public final class CmdProcessor implements ChatOutputListener
 		{
 			this.input = input;
 		}
+
+		private String getPrefixedCmd(String cmd) {
+			return CMD_PREFIX + cmd;
+		}
 		
 		public void printToChat()
 		{
 			String cmdName = input.split(" ")[0];
-			ChatUtils.error("Unknown command: ." + cmdName);
+			ChatUtils.error("Unknown command: " + CMD_PREFIX + cmdName);
 			
 			StringBuilder helpMsg = new StringBuilder();
 			
 			if(input.startsWith("/"))
 			{
-				helpMsg.append("Use \".say " + input + "\"");
+				helpMsg.append("Use \"").append(getPrefixedCmd("say")).append(" ").append(input).append("\"");
 				helpMsg.append(" to send it as a chat command.");
 				
 			}else
 			{
-				helpMsg.append("Type \".help\" for a list of commands or ");
-				helpMsg.append("\".say ." + input + "\"");
+				helpMsg.append("Type \"").append(getPrefixedCmd("help")).append("\"").append(" for a list of commands or ");
+				helpMsg.append("\"").append(getPrefixedCmd("say")).append(" ").append(CMD_PREFIX).append(input).append("\"");
 				helpMsg.append(" to send it as a chat message.");
 			}
 			

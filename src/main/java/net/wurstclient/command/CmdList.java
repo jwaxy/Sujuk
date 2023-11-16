@@ -15,6 +15,8 @@ import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.wurstclient.commands.*;
 
+import static net.wurstclient.WurstClient.CMD_PREFIX;
+
 public final class CmdList
 {
 	public final AddAltCmd addAltCmd = new AddAltCmd();
@@ -78,7 +80,7 @@ public final class CmdList
 		{
 			for(Field field : CmdList.class.getDeclaredFields())
 			{
-				if(!field.getName().endsWith("Cmd"))
+				if(!field.getName().endsWith("Cmd")) // what a great way to filter it
 					continue;
 				
 				Command cmd = (Command)field.get(this);
@@ -95,7 +97,7 @@ public final class CmdList
 	
 	public Command getCmdByName(String name)
 	{
-		return cmds.get("." + name);
+		return cmds.get(CMD_PREFIX + name);
 	}
 	
 	public Collection<Command> getAllCmds()

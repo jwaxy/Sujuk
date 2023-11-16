@@ -13,6 +13,8 @@ import net.wurstclient.Category;
 import net.wurstclient.Feature;
 import net.wurstclient.util.ChatUtils;
 
+import static net.wurstclient.WurstClient.CMD_PREFIX;
+
 public abstract class Command extends Feature
 {
 	private final String name;
@@ -36,7 +38,7 @@ public abstract class Command extends Feature
 	@Override
 	public final String getName()
 	{
-		return "." + name;
+		return CMD_PREFIX + name;
 	}
 	
 	@Override
@@ -61,7 +63,14 @@ public abstract class Command extends Feature
 	
 	public final String[] getSyntax()
 	{
-		return syntax;
+        String[] modifiedSyntax = new String[syntax.length];
+
+		for (int i = 0; i < syntax.length; i++) {
+			// Use replaceFirst to replace the dot (default prefix) with the user's desired prefix
+			modifiedSyntax[i] = syntax[i].replaceFirst("^\\.", CMD_PREFIX);
+		}
+
+		return modifiedSyntax;
 	}
 	
 	public final void printHelp()

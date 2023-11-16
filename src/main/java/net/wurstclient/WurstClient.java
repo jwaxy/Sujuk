@@ -59,6 +59,8 @@ public enum WurstClient
 	
 	public static final String VERSION = "7.39";
 	public static final String MC_VERSION = "1.20.2";
+
+	public static String CMD_PREFIX;
 	
 	private WurstAnalytics analytics;
 	private EventManager eventManager;
@@ -87,6 +89,8 @@ public enum WurstClient
 	public void initialize()
 	{
 		System.out.println("Starting Sujuk...");
+
+		CMD_PREFIX = ","; //TODO: make it changeable in settings
 		
 		MC = MinecraftClient.getInstance();
 		IMC = (IMinecraftClient)MC;
