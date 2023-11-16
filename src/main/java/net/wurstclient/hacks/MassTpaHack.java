@@ -10,6 +10,7 @@ package net.wurstclient.hacks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.StringHelper;
@@ -19,6 +20,9 @@ import net.wurstclient.events.ChatInputListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.DontSaveState;
 import net.wurstclient.hack.Hack;
+import net.wurstclient.settings.SliderSetting;
+import net.wurstclient.settings.SliderSetting.ValueDisplay;
+import net.wurstclient.settings.TextFieldSetting;
 import net.wurstclient.util.ChatUtils;
 
 @SearchTags({"mass tpa"})
@@ -26,9 +30,24 @@ import net.wurstclient.util.ChatUtils;
 public final class MassTpaHack extends Hack
 	implements UpdateListener, ChatInputListener
 {
+	private static final Pattern ALLOWED_COMMANDS =
+		Pattern.compile("^/+[a-zA-Z0-9_\\-]+$");
+	
+	private final TextFieldSetting commandSetting =
+		new TextFieldSetting("Command",
+			"The command to use for teleporting.\n"
+				+ "Examples: /tp, /tpa, /tpahere, /tpo",
+			"/tpa",
+			s -> s.length() < 64 && ALLOWED_COMMANDS.matcher(s).matches());
+	
+	private final SliderSetting delay = new SliderSetting("Delay",
+		"The delay between each teleport request.", 20, 1, 200, 1,
+		ValueDisplay.INTEGER.withSuffix(" ticks").withLabel(1, "1 tick"));
+	
 	private final Random random = new Random();
 	private final ArrayList<String> players = new ArrayList<>();
 	
+	private String command;
 	private int index;
 	private int timer;
 	
@@ -36,17 +55,23 @@ public final class MassTpaHack extends Hack
 	{
 		super("MassTPA");
 		setCategory(Category.CHAT);
+		addSetting(commandSetting);
+		addSetting(delay);
 	}
 	
 	@Override
 	public void onEnable()
 	{
-		index = 0;
-		timer = -1;
-		
+		// reset state
 		players.clear();
-		String playerName = MC.getSession().getUsername();
+		index = 0;
+		timer = 0;
 		
+		// cache command in case the setting is changed mid-run
+		command = commandSetting.getValue().substring(1);
+		
+		// collect player names
+		String playerName = MC.getSession().getUsername();
 		for(PlayerListEntry info : MC.player.networkHandler.getPlayerList())
 		{
 			String name = info.getProfile().getName();
@@ -80,7 +105,7 @@ public final class MassTpaHack extends Hack
 	@Override
 	public void onUpdate()
 	{
-		if(timer > -1)
+		if(timer > 0)
 		{
 			timer--;
 			return;
@@ -92,9 +117,11 @@ public final class MassTpaHack extends Hack
 			return;
 		}
 		
-		MC.getNetworkHandler().sendChatCommand("tpa " + players.get(index));
+		MC.getNetworkHandler()
+			.sendChatCommand(command + " " + players.get(index));
+		
 		index++;
-		timer = 20;
+		timer = delay.getValueI() - 1;
 	}
 	
 	@Override
@@ -107,14 +134,16 @@ public final class MassTpaHack extends Hack
 		if(message.contains("/help") || message.contains("permission"))
 		{
 			event.cancel();
-			ChatUtils.error("This server doesn't have TPA.");
+			ChatUtils.error("This server doesn't have a "
+				+ command.toUpperCase() + " command.");
 			setEnabled(false);
 			
 		}else if(message.contains("accepted") && message.contains("request")
 			|| message.contains("akzeptiert") && message.contains("anfrage"))
 		{
 			event.cancel();
-			ChatUtils.message("Someone accepted your TPA request. Stopping.");
+			ChatUtils.message("Someone accepted your " + command.toUpperCase()
+				+ " request. Stopping.");
 			setEnabled(false);
 		}
 	}

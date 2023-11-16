@@ -27,6 +27,7 @@ import net.wurstclient.commands.FriendsCmd;
 import net.wurstclient.hacks.XRayHack;
 import net.wurstclient.other_features.VanillaSpoofOtf;
 import net.wurstclient.settings.CheckboxSetting;
+import net.wurstclient.util.ChatUtils;
 
 public class WurstOptionsScreen extends Screen
 {
@@ -70,7 +71,7 @@ public class WurstOptionsScreen extends Screen
 		
 		new WurstOptionsButton(-154, 48,
 			() -> "Count Users: " + (analytics.isEnabled() ? "ON" : "OFF"),
-			"Counts how many people are using Sujuk\n"
+			"Counts how many people are using Wurst\n"
 				+ "and which versions are the most popular.\n"
 				+ "We use this data to decide when to stop\n"
 				+ "supporting old Minecraft versions.\n\n"
@@ -84,15 +85,14 @@ public class WurstOptionsScreen extends Screen
 		new WurstOptionsButton(-154, 72,
 			() -> "Spoof Vanilla: "
 				+ (vanillaSpoofOtf.isEnabled() ? "ON" : "OFF"),
-			vanillaSpoofOtf.getWrappedDescription(200),
+			vanillaSpoofOtf.getDescription(),
 			b -> vanillaSpoofOtf.doPrimaryAction());
 		
 		new WurstOptionsButton(-154, 96,
 			() -> "Translations: " + (!forceEnglish.isChecked() ? "ON" : "OFF"),
-			"§cThis is an experimental feature!\n"
-				+ "We don't have many translations yet. If you\n"
-				+ "speak both English and some other language,\n"
-				+ "please help us by adding more translations.",
+			"Allows text in Sujuk to be displayed in other languages than"
+				+ " English. It will use the same language that Minecraft is"
+				+ " set to.\n\n" + "This is an experimental feature!",
 			b -> forceEnglish.setChecked(!forceEnglish.isChecked()));
 	}
 	
@@ -101,18 +101,17 @@ public class WurstOptionsScreen extends Screen
 		XRayHack xRayHack = WurstClient.INSTANCE.getHax().xRayHack;
 		
 		new WurstOptionsButton(-50, 24, () -> "Keybinds",
-			"Keybinds allow you to toggle any hack\n"
-				+ "or command by simply pressing a\n" + "button.",
+			"Keybinds allow you to toggle any hack or command by simply"
+				+ " pressing a button.",
 			b -> client.setScreen(new KeybindManagerScreen(this)));
 		
 		new WurstOptionsButton(-50, 48, () -> "X-Ray Blocks",
-			"Manager for the blocks\n" + "that X-Ray will show.",
+			"Manager for the blocks that X-Ray will show.",
 			b -> xRayHack.openBlockListEditor(this));
 		
 		new WurstOptionsButton(-50, 72, () -> "Zoom",
-			"The Zoom Manager allows you to\n"
-				+ "change the zoom key, how far it\n"
-				+ "will zoom in and more.",
+			"The Zoom Manager allows you to change the zoom key and how far it"
+				+ " will zoom in.",
 			b -> client.setScreen(new ZoomManagerScreen(this)));
 	}
 	
@@ -215,7 +214,7 @@ public class WurstOptionsScreen extends Screen
 				this.tooltip = Arrays.asList();
 			else
 			{
-				String[] lines = tooltip.split("\n");
+				String[] lines = ChatUtils.wrapText(tooltip, 200).split("\n");
 				
 				Text[] lines2 = new Text[lines.length];
 				for(int i = 0; i < lines.length; i++)
