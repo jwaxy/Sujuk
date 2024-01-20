@@ -10,16 +10,12 @@ package net.wurstclient.mixin;
 import java.util.List;
 
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -54,31 +50,31 @@ public abstract class GameMenuScreenMixin extends Screen
 		addWurstOptionsButton();
 	}
 	
-//	@Inject(at = @At("TAIL"),
-//		method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
-//	private void onRender(DrawContext context, int mouseX, int mouseY,
-//		float partialTicks, CallbackInfo ci)
-//	{
-//		if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
-//			return;
-//
-//		GL11.glEnable(GL11.GL_CULL_FACE);
-//		GL11.glDisable(GL11.GL_DEPTH_TEST);
-//		GL11.glDepthMask(false);
-//		GL11.glEnable(GL11.GL_BLEND);
-//		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-//		RenderSystem.setShaderColor(1, 1, 1, 1);
-//
-//		int x = wurstOptionsButton.getX() + 34;
-//		int y = wurstOptionsButton.getY() + 2;
-//		int w = 63;
-//		int h = 16;
-//		int fw = 63;
-//		int fh = 16;
-//		float u = 0;
-//		float v = 0;
-//		context.drawTexture(WURST_TEXTURE, x, y, u, v, w, h, fw, fh);
-//	}
+	// @Inject(at = @At("TAIL"),
+	// method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
+	// private void onRender(DrawContext context, int mouseX, int mouseY,
+	// float partialTicks, CallbackInfo ci)
+	// {
+	// if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
+	// return;
+	//
+	// GL11.glEnable(GL11.GL_CULL_FACE);
+	// GL11.glDisable(GL11.GL_DEPTH_TEST);
+	// GL11.glDepthMask(false);
+	// GL11.glEnable(GL11.GL_BLEND);
+	// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+	// RenderSystem.setShaderColor(1, 1, 1, 1);
+	//
+	// int x = wurstOptionsButton.getX() + 34;
+	// int y = wurstOptionsButton.getY() + 2;
+	// int w = 63;
+	// int h = 16;
+	// int fw = 63;
+	// int fh = 16;
+	// float u = 0;
+	// float v = 0;
+	// context.drawTexture(WURST_TEXTURE, x, y, u, v, w, h, fw, fh);
+	// }
 	
 	private void addWurstOptionsButton()
 	{
@@ -108,16 +104,16 @@ public abstract class GameMenuScreenMixin extends Screen
 			throw new CrashException(
 				CrashReport.create(new IllegalStateException(),
 					"Someone deleted the Feedback button!"));
-
+		
 		int btnWidth = 204;
-
-		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+		
+		if(FabricLoader.getInstance().isModLoaded("modmenu"))
+		{
 			btnWidth = 98;
 		}
-
+		
 		wurstOptionsButton = ButtonWidget
-			.builder(Text.literal("Sujuk Options"),
-				b -> openWurstOptions())
+			.builder(Text.literal("Sujuk Options"), b -> openWurstOptions())
 			.dimensions(width / 2 - 102, buttonY, btnWidth, 20).build();
 		buttons.add(wurstOptionsButton);
 	}

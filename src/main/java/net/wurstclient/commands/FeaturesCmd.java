@@ -7,7 +7,6 @@
  */
 package net.wurstclient.commands;
 
-import net.wurstclient.WurstClient;
 import net.wurstclient.command.CmdException;
 import net.wurstclient.command.CmdSyntaxError;
 import net.wurstclient.command.Command;
@@ -29,10 +28,11 @@ public final class FeaturesCmd extends Command
 	{
 		if(args.length != 0)
 			throw new CmdSyntaxError();
-		
-//		if(WurstClient.VERSION.startsWith("7.0pre"))
-//			ChatUtils.warning(
-//				"This is just a pre-release! It doesn't (yet) have all of the features of Sujuk 7.0! See download page for details.");
+			
+		// if(WurstClient.VERSION.startsWith("7.0pre"))
+		// ChatUtils.warning(
+		// "This is just a pre-release! It doesn't (yet) have all of the
+		// features of Sujuk 7.0! See download page for details.");
 		
 		int hax = WURST.getHax().countHax();
 		int cmds = WURST.getCmds().countCmds();

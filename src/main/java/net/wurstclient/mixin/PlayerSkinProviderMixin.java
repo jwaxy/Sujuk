@@ -57,7 +57,7 @@ public abstract class PlayerSkinProviderMixin
 		{
 			System.err
 				.println("[Sujuk] Failed to load cape for UUID " + uuidString);
-
+			
 			e.printStackTrace();
 		}
 	}
@@ -82,7 +82,9 @@ public abstract class PlayerSkinProviderMixin
 		try
 		{
 			// TODO: download capes to file
-//			URL url = new URL("https://www.wurstclient.net/api/v1/capes.json"); //maybe reimplement this
+			// URL url = new
+			// URL("https://www.wurstclient.net/api/v1/capes.json"); //maybe
+			// reimplement this
 			URL url = new URL("lol");
 			
 			capes =
@@ -91,8 +93,7 @@ public abstract class PlayerSkinProviderMixin
 			
 		}catch(Exception e)
 		{
-			System.err
-				.println("[Sujuk] Failed to load capes from the server!");
+			System.err.println("[Sujuk] Failed to load capes from the server!");
 			
 			e.printStackTrace();
 		}

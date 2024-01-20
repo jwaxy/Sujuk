@@ -48,10 +48,10 @@ public final class AutoFarmHack extends Hack
 	
 	private final CheckboxSetting replant =
 		new CheckboxSetting("Replant", true);
-
+	
 	private final CheckboxSetting teleportToDrop =
-			new CheckboxSetting("teleportToDrop", true);
-
+		new CheckboxSetting("teleportToDrop", true);
+	
 	private final HashMap<Block, Item> seeds = new HashMap<>();
 	{
 		seeds.put(Blocks.WHEAT, Items.WHEAT_SEEDS);
@@ -70,7 +70,7 @@ public final class AutoFarmHack extends Hack
 	
 	private final AutoFarmRenderer renderer = new AutoFarmRenderer();
 	private final OverlayRenderer overlay = new OverlayRenderer();
-
+	
 	private boolean busy;
 	
 	public AutoFarmHack()
@@ -148,7 +148,7 @@ public final class AutoFarmHack extends Hack
 		
 		// first, try to replant
 		boolean replanting = replant(blocksToReplant);
-
+		
 		// if we can't replant, harvest instead
 		if(!replanting)
 			harvest(blocksToHarvest);
@@ -290,7 +290,7 @@ public final class AutoFarmHack extends Hack
 			ArrayList<BlockPos> blocksToReplantWithHeldSeed =
 				blocksToReplant.stream().filter(pos -> plants.get(pos) == item)
 					.collect(Collectors.toCollection(ArrayList::new));
-
+			
 			for(BlockPos pos : blocksToReplantWithHeldSeed)
 			{
 				// skip over blocks that we can't reach
@@ -310,20 +310,20 @@ public final class AutoFarmHack extends Hack
 				if(result.isAccepted() && result.shouldSwingHand())
 					MC.player.networkHandler
 						.sendPacket(new HandSwingC2SPacket(hand));
-
-
-				if(teleportToDrop.isChecked()) {
+				
+				if(teleportToDrop.isChecked())
+				{
 					ClientPlayerEntity player = MC.player;
-					player.setPosition(pos.getX() + 0.5,
-							pos.getY(), pos.getZ() + 0.5);
-
+					player.setPosition(pos.getX() + 0.5, pos.getY(),
+						pos.getZ() + 0.5);
+					
 				}
-
+				
 				// reset cooldown
 				MC.itemUseCooldown = 4;
 				return true;
 			}
-
+			
 		}
 		
 		// otherwise, find a block that we can reach and have seeds for
@@ -339,7 +339,7 @@ public final class AutoFarmHack extends Hack
 			if(InventoryUtils.selectItem(item))
 				return true;
 		}
-
+		
 		// if we couldn't replant anything, return false
 		return false;
 	}

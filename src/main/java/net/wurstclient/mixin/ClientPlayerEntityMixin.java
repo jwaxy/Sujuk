@@ -57,7 +57,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public float lastPitch;
 	@Shadow
 	public ClientPlayNetworkHandler networkHandler;
-
+	
 	@Shadow
 	@Final
 	protected MinecraftClient client;
@@ -94,10 +94,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldOmniSprint())
 			return input.getMovementInput().length() > 1e-5F;
-
+		
 		return original.call(input);
 	}
-
+	
 	/**
 	 * This mixin runs just before the tickMovement() method calls
 	 * isUsingItem(), so that the onIsUsingItem() mixin knows which
@@ -148,7 +148,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
 			mountJumpStrength = 1;
 	}
-
+	
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
 	private void onSendMovementPacketsHEAD(CallbackInfo ci)
 	{
@@ -221,7 +221,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldSprintHungry())
 			cir.setReturnValue(true);
 	}
-
+	
 	/**
 	 * Getter method for what used to be airStrafingSpeed.
 	 * Overridden to allow for the speed to be modified by hacks.
