@@ -10,7 +10,6 @@ package net.wurstclient.mixin;
 import java.util.List;
 
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -113,13 +112,13 @@ public abstract class GameMenuScreenMixin extends Screen
 
 		int btnWidth = 204;
 
-		if (FabricLoader.getInstance().isModLoaded("modmenu")) {
+		if(FabricLoader.getInstance().isModLoaded("modmenu"))
+		{
 			btnWidth = 98;
 		}
 
 		wurstOptionsButton = ButtonWidget
-			.builder(Text.literal("Sujuk Options"),
-				b -> openWurstOptions())
+			.builder(Text.literal("Sujuk Options"), b -> openWurstOptions())
 			.dimensions(width / 2 - 102, buttonY, btnWidth, 20).build();
 		buttons.add(wurstOptionsButton);
 	}

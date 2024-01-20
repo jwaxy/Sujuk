@@ -63,7 +63,7 @@ public final class CmdProcessor implements ChatOutputListener
 			e.printToChat();
 		}
 	}
-
+	
 	private Command parseCmd(String input) throws CmdNotFoundException
 	{
 		String cmdName = input.split(" ")[0];
@@ -105,8 +105,9 @@ public final class CmdProcessor implements ChatOutputListener
 		{
 			this.input = input;
 		}
-
-		private String getPrefixedCmd(String cmd) {
+		
+		private String getPrefixedCmd(String cmd)
+		{
 			return CMD_PREFIX + cmd;
 		}
 		
@@ -119,13 +120,16 @@ public final class CmdProcessor implements ChatOutputListener
 			
 			if(input.startsWith("/"))
 			{
-				helpMsg.append("Use \"").append(getPrefixedCmd("say")).append(" ").append(input).append("\"");
+				helpMsg.append("Use \"").append(getPrefixedCmd("say"))
+					.append(" ").append(input).append("\"");
 				helpMsg.append(" to send it as a chat command.");
 				
 			}else
 			{
-				helpMsg.append("Type \"").append(getPrefixedCmd("help")).append("\"").append(" for a list of commands or ");
-				helpMsg.append("\"").append(getPrefixedCmd("say")).append(" ").append(CMD_PREFIX).append(input).append("\"");
+				helpMsg.append("Type \"").append(getPrefixedCmd("help"))
+					.append("\"").append(" for a list of commands or ");
+				helpMsg.append("\"").append(getPrefixedCmd("say")).append(" ")
+					.append(CMD_PREFIX).append(input).append("\"");
 				helpMsg.append(" to send it as a chat message.");
 			}
 			

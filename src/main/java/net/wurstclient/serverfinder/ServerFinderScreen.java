@@ -22,7 +22,6 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.ServerInfo.ServerType;
 import net.minecraft.text.Text;
-import net.minecraft.util.Util;
 import net.wurstclient.mixinterface.IMultiplayerScreen;
 import net.wurstclient.util.MathUtils;
 
@@ -53,13 +52,13 @@ public class ServerFinderScreen extends Screen
 				.dimensions(width / 2 - 100, height / 4 + 96 + 12, 200, 20)
 				.build());
 		
-//		addDrawableChild(
-//			ButtonWidget
-//				.builder(Text.literal("Tutorial"),
-//					b -> Util.getOperatingSystem().open(
-//						"https://www........../serverfinder-tutorial/"))
-//				.dimensions(width / 2 - 100, height / 4 + 120 + 12, 200, 20)
-//				.build());
+		// addDrawableChild(
+		// ButtonWidget
+		// .builder(Text.literal("Tutorial"),
+		// b -> Util.getOperatingSystem().open(
+		// "https://www........../serverfinder-tutorial/"))
+		// .dimensions(width / 2 - 100, height / 4 + 120 + 12, 200, 20)
+		// .build());
 		
 		addDrawableChild(ButtonWidget
 			.builder(Text.literal("Back"), b -> client.setScreen(prevScreen))
