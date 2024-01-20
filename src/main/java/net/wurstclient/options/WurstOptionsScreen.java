@@ -117,28 +117,23 @@ public class WurstOptionsScreen extends Screen
 	{
 		OperatingSystem os = Util.getOperatingSystem();
 		
-		new WurstOptionsButton(54, 24, () -> "Official Website",
-			"WurstClient.net", b -> os.open(
-				"https://www.wurstclient.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Official+Website"));
+		new WurstOptionsButton(54, 24, () -> "Website", "click me!",
+			b -> os.open("https://jwaxy.is-a.dev/Sujuk/"));
 		
-		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
-			b -> os.open(
-				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
-		
-//		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
-//			b -> os.open(
-//				"https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
-//
-//		new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
-//			b -> os.open(
-//				"https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
-//
-//		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
-//			b -> os.open("https://www.wurstclient.net/twitter/"));
-//
-//		new WurstOptionsButton(54, 120, () -> "Donate",
-//			"WurstClient.net/donate", b -> os.open(
-//				"https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
+		// new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
+		// b -> os.open(
+		// "https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
+		//
+		// new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
+		// b -> os.open(
+		// "https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
+		//
+		// new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
+		// b -> os.open("https://www.wurstclient.net/twitter/"));
+		//
+		// new WurstOptionsButton(54, 120, () -> "Donate",
+		// "WurstClient.net/donate", b -> os.open(
+		// "https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
 	}
 	
 	@Override
@@ -216,7 +211,7 @@ public class WurstOptionsScreen extends Screen
 				this.tooltip = Arrays.asList();
 			else
 			{
-				String[] lines = tooltip.split("\n");
+				String[] lines = ChatUtils.wrapText(tooltip, 200).split("\n");
 				
 				Text[] lines2 = new Text[lines.length];
 				for(int i = 0; i < lines.length; i++)

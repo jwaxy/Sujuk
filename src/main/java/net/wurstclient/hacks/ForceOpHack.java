@@ -32,12 +32,12 @@ public final class ForceOpHack extends Hack implements ChatInputListener
 {
 	private final String[] defaultList = {"password", "passwort", "password1",
 		"passwort1", "password123", "passwort123", "pass", "pw", "pw1", "pw123",
-		"hallo", "1234", "12345", "123456", "1234567",
-		"12345678", "123456789", "login", "register", "test", "sicher", "me",
-		"penis", "penis1", "penis123", "minecraft", "minecraft1",
-		"minecraft123", "mc", "admin", "server", "yourmom", "tester", "account",
-		"creeper", "gronkh", "lol", "auth", "authme", "qwerty", "qwertz",
-		"ficken", "ficken1", "ficken123", "fuck", "fuckme", "fuckyou"};
+		"hallo", "1234", "12345", "123456", "1234567", "12345678", "123456789",
+		"login", "register", "test", "sicher", "me", "penis", "penis1",
+		"penis123", "minecraft", "minecraft1", "minecraft123", "mc", "admin",
+		"server", "yourmom", "tester", "account", "creeper", "gronkh", "lol",
+		"auth", "authme", "qwerty", "qwertz", "ficken", "ficken1", "ficken123",
+		"fuck", "fuckme", "fuckyou"};
 	private String[] passwords;
 	
 	private boolean gotWrongPwMsg;

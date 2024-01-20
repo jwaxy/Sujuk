@@ -61,9 +61,9 @@ public abstract class PlayerSkinProviderMixin
 			
 		}catch(Exception e)
 		{
-			System.err.println("[Sujuk] Failed to load cape for '" + name
-				+ "' (" + uuid + ")");
-			
+			System.err
+				.println("[Sujuk] Failed to load cape for UUID " + uuidString);
+
 			e.printStackTrace();
 		}
 	}
@@ -118,8 +118,7 @@ public abstract class PlayerSkinProviderMixin
 			
 		}catch(Exception e)
 		{
-			System.err
-				.println("[Sujuk] Failed to load capes from the server!");
+			System.err.println("[Sujuk] Failed to load capes from the server!");
 			
 			e.printStackTrace();
 		}

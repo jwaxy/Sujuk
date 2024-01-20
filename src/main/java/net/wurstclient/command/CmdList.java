@@ -80,7 +80,8 @@ public final class CmdList
 		{
 			for(Field field : CmdList.class.getDeclaredFields())
 			{
-				if(!field.getName().endsWith("Cmd")) // what a great way to filter it
+				if(!field.getName().endsWith("Cmd")) // what a great way to
+														// filter it
 					continue;
 				
 				Command cmd = (Command)field.get(this);

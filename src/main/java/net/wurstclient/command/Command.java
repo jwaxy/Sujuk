@@ -63,13 +63,15 @@ public abstract class Command extends Feature
 	
 	public final String[] getSyntax()
 	{
-        String[] modifiedSyntax = new String[syntax.length];
-
-		for (int i = 0; i < syntax.length; i++) {
-			// Use replaceFirst to replace the dot (default prefix) with the user's desired prefix
+		String[] modifiedSyntax = new String[syntax.length];
+		
+		for(int i = 0; i < syntax.length; i++)
+		{
+			// Use replaceFirst to replace the dot (default prefix) with the
+			// user's desired prefix
 			modifiedSyntax[i] = syntax[i].replaceFirst("^\\.", CMD_PREFIX);
 		}
-
+		
 		return modifiedSyntax;
 	}
 	
