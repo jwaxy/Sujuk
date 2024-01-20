@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2023 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -17,10 +17,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -79,6 +82,23 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	}
 	
 	/**
+	 * This mixin makes AutoSprint's "Omnidirectional Sprint" setting work.
+	 */
+	@WrapOperation(
+		at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z",
+			ordinal = 0),
+		method = "tickMovement()V")
+	private boolean wrapHasForwardMovement(Input input,
+		Operation<Boolean> original)
+	{
+		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldOmniSprint())
+			return input.getMovementInput().length() > 1e-5F;
+
+		return original.call(input);
+	}
+
+	/**
 	 * This mixin runs just before the tickMovement() method calls
 	 * isUsingItem(), so that the onIsUsingItem() mixin knows which
 	 * call to intercept.
@@ -128,7 +148,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
 			mountJumpStrength = 1;
 	}
-	
+
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
 	private void onSendMovementPacketsHEAD(CallbackInfo ci)
 	{
@@ -191,6 +211,17 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		tempCurrentScreen = null;
 	}
 	
+	/**
+	 * This mixin allows AutoSprint to enable sprinting even when the player is
+	 * too hungry.
+	 */
+	@Inject(at = @At("HEAD"), method = "canSprint()Z", cancellable = true)
+	private void onCanSprint(CallbackInfoReturnable<Boolean> cir)
+	{
+		if(WurstClient.INSTANCE.getHax().autoSprintHack.shouldSprintHungry())
+			cir.setReturnValue(true);
+	}
+
 	/**
 	 * Getter method for what used to be airStrafingSpeed.
 	 * Overridden to allow for the speed to be modified by hacks.
