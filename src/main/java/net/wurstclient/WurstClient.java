@@ -189,13 +189,13 @@ public enum WurstClient
 			try
 			{
 				return String.format(string, args);
-
+				
 			}catch(IllegalFormatException e)
 			{
 				return key;
 			}
 		}
-
+		
 		// This extra check is necessary because I18n.translate() doesn't
 		// always return the key when the translation is missing. If the key
 		// contains a '%', it will return "Format Error: key" instead.
