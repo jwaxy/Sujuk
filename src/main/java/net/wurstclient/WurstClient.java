@@ -91,7 +91,7 @@ public enum WurstClient
 	{
 		System.out.println("Starting Sujuk...");
 
-		CMD_PREFIX = ","; //TODO: make it changeable in settings
+		CMD_PREFIX = ","; // TODO: make it changeable in settings
 		
 		MC = MinecraftClient.getInstance();
 		IMC = (IMinecraftClient)MC;

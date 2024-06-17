@@ -52,7 +52,9 @@ public final class CrashChestHack extends Hack
 		NbtList nbtList = new NbtList();
 		for(int i = 0; i < 40000; i++)
 			nbtList.add(new NbtList());
-		nbtCompound.put("www.wurstclient.net", nbtList); // would this still work if i put sujuk in there
+		nbtCompound.put("www.wurstclient.net", nbtList); // would this still
+															// work if i put
+															// sujuk in there
 		stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbtCompound));
 		stack.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Copy Me"));
 		
