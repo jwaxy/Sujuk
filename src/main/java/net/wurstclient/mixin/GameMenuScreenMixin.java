@@ -32,7 +32,7 @@ import net.wurstclient.options.WurstOptionsScreen;
 public abstract class GameMenuScreenMixin extends Screen
 {
 	private static final Identifier WURST_TEXTURE =
-            Identifier.of("wurst", "sujuk_128.png");
+		Identifier.of("wurst", "sujuk_128.png");
 	
 	private ButtonWidget wurstOptionsButton;
 	
@@ -106,14 +106,14 @@ public abstract class GameMenuScreenMixin extends Screen
 			throw new CrashException(
 				CrashReport.create(new IllegalStateException(),
 					"Someone deleted the Feedback button!"));
-
+		
 		int btnWidth = 204;
-
+		
 		if(FabricLoader.getInstance().isModLoaded("modmenu"))
 		{
 			btnWidth = 98;
 		}
-
+		
 		wurstOptionsButton = ButtonWidget
 			.builder(Text.literal("Sujuk Options"), b -> openWurstOptions())
 			.dimensions(width / 2 - 102, buttonY, btnWidth, 20).build();
