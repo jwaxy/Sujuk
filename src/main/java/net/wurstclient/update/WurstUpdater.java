@@ -88,6 +88,14 @@ public final class WurstUpdater implements UpdateListener
 			e.printStackTrace();
 		}
 		
+		String currentVersionEncoded = URLEncoder.encode(
+			"Wurst " + currentVersion + " MC" + WurstClient.MC_VERSION,
+			StandardCharsets.UTF_8);
+		
+		String baseUrl = "https://www.wurstclient.net/download/";
+		String utmSource = "Wurst+Client";
+		String utmMedium = "WurstUpdater+chat+message";
+		
 		if(latestVersion == null || latestVersion.isInvalid())
 		{
 			String text = "An error occurred while checking for updates."

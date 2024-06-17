@@ -1,13 +1,12 @@
 buildscript {
 	dependencies {
-		classpath 'org.kohsuke:github-api:1.135'
+		classpath "org.kohsuke:github-api:1.321"
 	}
 }
 
 plugins {
-	id 'fabric-loom' version '1.4-SNAPSHOT'
-	id 'maven-publish'
-	id 'com.diffplug.spotless' version '6.23.3'
+	id "fabric-loom" version "1.6-SNAPSHOT"
+	id "com.diffplug.spotless" version "6.25.0"
 }
 
 def ENV = System.getenv()
@@ -85,23 +84,6 @@ spotless {
 	}
 }
 
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-	
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
-}
-
 task moveDevLibs(dependsOn: [remapJar, remapSourcesJar]) {
 	doLast {
 		ant.move(file:"${project.buildDir}/devlibs/${archivesBaseName}-${version}-dev.jar", tofile:"${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar")
@@ -125,6 +107,7 @@ task github(dependsOn: moveDevLibs) {
 		def ghRelease = repository.getReleaseByTagName(ghVersion as String)
 		if(ghRelease == null) {
 			def releaseBuilder = new GHReleaseBuilder(repository, ghVersion as String)
+			releaseBuilder.prerelease(ghVersion.contains("pre"))
 			ghRelease = releaseBuilder.create()
 		}
 		

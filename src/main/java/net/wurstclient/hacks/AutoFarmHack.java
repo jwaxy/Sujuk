@@ -84,7 +84,7 @@ public final class AutoFarmHack extends Hack
 	}
 	
 	@Override
-	public void onEnable()
+	protected void onEnable()
 	{
 		plants.clear();
 		
@@ -93,7 +93,7 @@ public final class AutoFarmHack extends Hack
 	}
 	
 	@Override
-	public void onDisable()
+	protected void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
 		EVENTS.remove(RenderListener.class, this);

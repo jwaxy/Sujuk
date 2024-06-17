@@ -93,6 +93,10 @@ public final class AutoFishRodSelector
 			}
 		}
 		
+		// wait for AutoEat to finish eating
+		if(WurstClient.INSTANCE.getHax().autoEatHack.isEating())
+			return false;
+		
 		// stop if out of rods
 		if(stopWhenOutOfRods.isChecked() && bestRodSlot == -1)
 		{
@@ -111,7 +115,7 @@ public final class AutoFishRodSelector
 		}
 		
 		// check if selected rod is still the best one
-		if(MC.player.getInventory().selectedSlot == bestRodSlot)
+		if(selectedSlot == bestRodSlot)
 			return true;
 		
 		// change selected rod and wait until the next tick
