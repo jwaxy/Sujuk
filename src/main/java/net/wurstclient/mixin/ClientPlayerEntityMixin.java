@@ -329,14 +329,14 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		
 		return super.hasStatusEffect(effect);
 	}
-
+	
 	@Override
 	public float getStepHeight()
 	{
 		return WurstClient.INSTANCE.getHax().stepHack
 			.adjustStepHeight(super.getStepHeight());
 	}
-
+	
 	// getter for GENERIC_BLOCK_INTERACTION_RANGE
 	@Override
 	public double getBlockInteractionRange()
@@ -344,10 +344,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		HackList hax = WurstClient.INSTANCE.getHax();
 		if(hax == null || !hax.reachHack.isEnabled())
 			return super.getBlockInteractionRange();
-
+		
 		return hax.reachHack.getReachDistance();
 	}
-
+	
 	// getter for GENERIC_ENTITY_INTERACTION_RANGE
 	@Override
 	public double getEntityInteractionRange()
@@ -355,7 +355,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		HackList hax = WurstClient.INSTANCE.getHax();
 		if(hax == null || !hax.reachHack.isEnabled())
 			return super.getEntityInteractionRange();
-
+		
 		return hax.reachHack.getReachDistance();
 	}
 }
