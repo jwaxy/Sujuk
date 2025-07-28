@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -7,19 +7,18 @@
  */
 package net.wurstclient.mixin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.text.MutableText;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -27,8 +26,6 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
 import net.wurstclient.WurstClient;
 import net.wurstclient.options.WurstOptionsScreen;
 
@@ -56,27 +53,29 @@ public abstract class GameMenuScreenMixin extends Screen
 		addWurstOptionsButton();
 	}
 	
-	/*@Inject(at = @At("TAIL"),
-		method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
-	private void onRender(DrawContext context, int mouseX, int mouseY,
-		float partialTicks, CallbackInfo ci)
-	{
-		if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
-			return;
-		
-		int x = wurstOptionsButton.getX() + 34;
-		int y = wurstOptionsButton.getY() + 2;
-		int w = 63;
-		int h = 16;
-		int fw = 63;
-		int fh = 16;
-		float u = 0;
-		float v = 0;
-		context.state.goUpLayer();
-		context.drawTexture(RenderPipelines.GUI_TEXTURED, WURST_TEXTURE, x, y,
-			u, v, w, h, fw, fh);
-		context.state.goDownLayer();
-	}*/
+	/*
+	 * @Inject(at = @At("TAIL"),
+	 * method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
+	 * private void onRender(DrawContext context, int mouseX, int mouseY,
+	 * float partialTicks, CallbackInfo ci)
+	 * {
+	 * if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
+	 * return;
+	 *
+	 * int x = wurstOptionsButton.getX() + 34;
+	 * int y = wurstOptionsButton.getY() + 2;
+	 * int w = 63;
+	 * int h = 16;
+	 * int fw = 63;
+	 * int fh = 16;
+	 * float u = 0;
+	 * float v = 0;
+	 * context.state.goUpLayer();
+	 * context.drawTexture(RenderPipelines.GUI_TEXTURED, WURST_TEXTURE, x, y,
+	 * u, v, w, h, fw, fh);
+	 * context.state.goDownLayer();
+	 * }
+	 */
 	
 	private void addWurstOptionsButton()
 	{
@@ -86,12 +85,12 @@ public abstract class GameMenuScreenMixin extends Screen
 		int buttonX = width / 2 - 102;
 		int buttonY = 60;
 		int buttonWidth = 204;
-
-        if(FabricLoader.getInstance().isModLoaded("modmenu"))
-        {
-            buttonWidth = 98;
-        }
-
+		
+		if(FabricLoader.getInstance().isModLoaded("modmenu"))
+		{
+			buttonWidth = 98;
+		}
+		
 		int buttonHeight = 20;
 		
 		for(ClickableWidget button : buttons)
@@ -134,7 +133,7 @@ public abstract class GameMenuScreenMixin extends Screen
 				|| isTrKey(button, "menu.server_links"))
 				button.visible = false;
 	}
-
+	
 	@Unique
 	private void ensureSpaceAvailable(int x, int y, int width, int height)
 	{
@@ -145,23 +144,23 @@ public abstract class GameMenuScreenMixin extends Screen
 			if(button.getRight() < x || button.getX() > x + width
 				|| button.getBottom() < y || button.getY() > y + height)
 				continue;
-
+			
 			if(!button.visible)
 				continue;
-
+			
 			buttonsInTheWay.add(button);
 		}
-
+		
 		// If not, we're done
 		if(buttonsInTheWay.isEmpty())
 			return;
-
+		
 		// If yes, clear space below and move the buttons there
 		ensureSpaceAvailable(x, y + 24, width, height);
 		for(ClickableWidget button : buttonsInTheWay)
 			button.setY(button.getY() + 24);
 	}
-
+	
 	@Unique
 	private void openWurstOptions()
 	{

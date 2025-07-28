@@ -37,7 +37,7 @@ public class MouseMixin
 		EventManager.fire(new MouseScrollEvent(vertical));
 	}
 	
-	@Inject(at = @At("HEAD"), method = "updateMouse()V")
+	@Inject(at = @At("HEAD"), method = "updateMouse")
 	private void onUpdateMouse(CallbackInfo ci)
 	{
 		MouseUpdateEvent event =

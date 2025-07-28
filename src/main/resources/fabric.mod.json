@@ -2,21 +2,19 @@
   "schemaVersion": 1,
   "id": "sujuk",
   "version": "${version}",
-
   "name": "Sujuk",
   "description": "It is delicious!",
   "authors": [
-    "jwaxy", "Alexander01998"
+    "jwaxy",
+    "Alexander01998"
   ],
   "contact": {
     "homepage": "https://jwaxy.is-a.dev/Sujuk/",
     "issues": "https://github.com/jwaxy/Sujuk/issues",
     "sources": "https://github.com/jwaxy/Sujuk"
   },
-
   "license": "GPL-3.0-or-later",
   "icon": "assets/wurst/icon.png",
-
   "environment": "client",
   "entrypoints": {
     "main": [

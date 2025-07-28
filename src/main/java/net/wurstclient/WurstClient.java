@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -11,20 +11,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.IllegalFormatException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.lwjgl.glfw.GLFW;
+import net.wurstclient.analytics.PlausibleAnalytics;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.util.InputUtil;
 import net.wurstclient.altmanager.AltManager;
 import net.wurstclient.altmanager.Encryption;
-import net.wurstclient.analytics.WurstAnalytics;
 import net.wurstclient.clickgui.ClickGui;
 import net.wurstclient.command.CmdList;
 import net.wurstclient.command.CmdProcessor;
@@ -41,7 +36,6 @@ import net.wurstclient.hack.HackList;
 import net.wurstclient.hud.IngameHUD;
 import net.wurstclient.keybinds.KeybindList;
 import net.wurstclient.keybinds.KeybindProcessor;
-import net.wurstclient.mixinterface.ILanguageManager;
 import net.wurstclient.mixinterface.IMinecraftClient;
 import net.wurstclient.navigator.Navigator;
 import net.wurstclient.other_feature.OtfList;
@@ -60,9 +54,9 @@ public enum WurstClient
 	
 	public static final String VERSION = "7.49";
 	public static final String MC_VERSION = "1.21.8";
-
-    public static String CMD_PREFIX;
-
+	
+	public static String CMD_PREFIX;
+	
 	private PlausibleAnalytics plausible;
 	private EventManager eventManager;
 	private AltManager altManager;
@@ -79,7 +73,7 @@ public enum WurstClient
 	private RotationFaker rotationFaker;
 	private FriendsList friends;
 	private WurstTranslator translator;
-
+	
 	private boolean enabled = true;
 	private static boolean guiInitialized;
 	private WurstUpdater updater;
@@ -91,13 +85,13 @@ public enum WurstClient
 	public void initialize()
 	{
 		System.out.println("Starting Sujuk...");
-
+		
 		CMD_PREFIX = ","; // TODO: make it changeable in settings
 		
 		MC = MinecraftClient.getInstance();
 		IMC = (IMinecraftClient)MC;
 		wurstFolder = createWurstFolder();
-
+		
 		Path analyticsFile = wurstFolder.resolve("analytics.json");
 		plausible = new PlausibleAnalytics(analyticsFile);
 		plausible.pageview("/");
@@ -131,7 +125,7 @@ public enum WurstClient
 		friends.load();
 		
 		translator = new WurstTranslator();
-
+		
 		cmdProcessor = new CmdProcessor(cmds);
 		eventManager.add(ChatOutputListener.class, cmdProcessor);
 		
@@ -297,7 +291,7 @@ public enum WurstClient
 	{
 		return translator;
 	}
-
+	
 	public boolean isEnabled()
 	{
 		return enabled;
@@ -328,7 +322,12 @@ public enum WurstClient
 	{
 		return wurstFolder;
 	}
-
+	
+	public KeyBinding getZoomKey()
+	{
+		return zoomKey;
+	}
+	
 	public AltManager getAltManager()
 	{
 		return altManager;

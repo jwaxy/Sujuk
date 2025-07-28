@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -7,10 +7,12 @@
  */
 package net.wurstclient.mixin;
 
+import net.minecraft.registry.entry.RegistryEntry;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -50,13 +52,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 {
 	@Shadow
 	private float mountJumpStrength;
-	@Shadow
-	public float lastYaw;
-	@Shadow
-	public float lastPitch;
+	@Final
 	@Shadow
 	public ClientPlayNetworkHandler networkHandler;
-
+	
 	@Shadow
 	@Final
 	protected MinecraftClient client;
@@ -121,7 +120,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
 			mountJumpStrength = 1;
 	}
-
+	
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
 	private void onSendMovementPacketsHEAD(CallbackInfo ci)
 	{
@@ -298,7 +297,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		
 		if(effect == StatusEffects.BLINDNESS && hax.antiBlindHack.isEnabled())
 			return false;
-
+		
 		if(effect == StatusEffects.DARKNESS && hax.antiBlindHack.isEnabled())
 			return false;
 		
@@ -318,10 +317,10 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		HackList hax = WurstClient.INSTANCE.getHax();
 		if(hax == null || !hax.reachHack.isEnabled())
 			return super.getBlockInteractionRange();
-
+		
 		return hax.reachHack.getReachDistance();
 	}
-
+	
 	@Override
 	public double getEntityInteractionRange()
 	{

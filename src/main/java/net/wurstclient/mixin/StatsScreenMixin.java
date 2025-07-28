@@ -48,13 +48,13 @@ public abstract class StatsScreenMixin extends Screen
 		ClickableWidget doneButton = getDoneButton();
 		doneButton.setX(width / 2 + 2);
 		doneButton.setWidth(150);
-
+		
 		toggleWurstButton.setPosition(width / 2 - 152, doneButton.getY());
-
+		
 		updateWurstButtonText(toggleWurstButton);
 		addDrawableChild(toggleWurstButton);
 	}
-
+	
 	@Unique
 	private ClickableWidget getDoneButton()
 	{

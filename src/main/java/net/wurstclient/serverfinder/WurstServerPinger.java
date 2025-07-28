@@ -31,7 +31,7 @@ public class WurstServerPinger
 		server = new ServerInfo("", ip + ":" + port, ServerType.OTHER);
 		
 		new Thread(() -> pingInCurrentThread(ip, port),
-			"Sujuk Server Pinger #" + threadNumber.incrementAndGet()).start();
+			"Wurst Server Pinger #" + threadNumber.incrementAndGet()).start();
 	}
 	
 	private void pingInCurrentThread(String ip, int port)
@@ -41,7 +41,7 @@ public class WurstServerPinger
 		
 		try
 		{
-			pinger.add(server, () -> {});
+			pinger.add(server, () -> {}, () -> {});
 			System.out.println("Ping successful: " + ip + ":" + port);
 			
 		}catch(UnknownHostException e)

@@ -32,7 +32,7 @@ public abstract class NavigatorScreen extends Screen
 	private double rawScrollDelta;
 	private int initialScroll;
 	private static final float scrollSensitivity = 4.0f;
-
+	
 	public NavigatorScreen()
 	{
 		super(Text.literal(""));
@@ -107,75 +107,75 @@ public abstract class NavigatorScreen extends Screen
 		// vanilla buttons
 		return super.mouseReleased(x, y, button);
 	}
-
-    // returns [0, 1]
-    private float getEaseInOut(float x)
-    {
-        if(x <= 0)
-            return 0;
-        if(x >= 1)
-            return 1;
-        return x * x * (3.0f - 2.0f * x);
-    }
-
-    private void clampScroll()
-    {
-        // THIS CODE WAS MOVED FROM SCROLL HANDLER
-        if(scroll > 0)
-            scroll = 0;
-        else if(scroll < maxScroll)
-            scroll = maxScroll;
-
-        if(maxScroll == 0)
-            scrollKnobPosition = 0;
-        else
-            scrollKnobPosition =
-                    (int)((height - 131) * scroll / (float)maxScroll);
-        scrollKnobPosition += 2;
-    }
-
-    private void updateScrollAnimation()
-    {
-        float t = ((System.currentTimeMillis() - scrollTimeStartMillis) / 1000f)
-                * scrollSensitivity;
-        float easeInOut = getEaseInOut(t);
-        if(easeInOut >= 1.0f)
-            return;
-
-        int dWheel = (int)(easeInOut * rawScrollDelta * 100.0f);
-        if(dWheel == 0)
-            return;
-
-        this.scroll = initialScroll + dWheel;
-
-        clampScroll();
-    }
+	
+	// returns [0, 1]
+	private float getEaseInOut(float x)
+	{
+		if(x <= 0)
+			return 0;
+		if(x >= 1)
+			return 1;
+		return x * x * (3.0f - 2.0f * x);
+	}
+	
+	private void clampScroll()
+	{
+		// THIS CODE WAS MOVED FROM SCROLL HANDLER
+		if(scroll > 0)
+			scroll = 0;
+		else if(scroll < maxScroll)
+			scroll = maxScroll;
+		
+		if(maxScroll == 0)
+			scrollKnobPosition = 0;
+		else
+			scrollKnobPosition =
+				(int)((height - 131) * scroll / (float)maxScroll);
+		scrollKnobPosition += 2;
+	}
+	
+	private void updateScrollAnimation()
+	{
+		float t = ((System.currentTimeMillis() - scrollTimeStartMillis) / 1000f)
+			* scrollSensitivity;
+		float easeInOut = getEaseInOut(t);
+		if(easeInOut >= 1.0f)
+			return;
+		
+		int dWheel = (int)(easeInOut * rawScrollDelta * 100.0f);
+		if(dWheel == 0)
+			return;
+		
+		this.scroll = initialScroll + dWheel;
+		
+		clampScroll();
+	}
 	
 	@Override
 	public final boolean mouseScrolled(double mouseX, double mouseY,
 		double horizontalAmount, double verticalAmount)
 	{
-        // scrollbar
-        if(!scrollbarLocked)
-        {
-            long now = System.currentTimeMillis();
-            if(now - scrollTimeStartMillis < 1000)
-            {
-                // If menu was already in the middle of scrolling animation,
-                // immediately scroll some more
-                // otherwise stuttery animation will play
-                scroll += verticalAmount * 10.0f;
-            }
-            scrollTimeStartMillis = now;
-            initialScroll = scroll;
-            rawScrollDelta = verticalAmount;
-            // Clamp scroll, otherwise scroll continues beyond screen and snaps
-            // back, looking finicky
-            clampScroll();
-        }
-
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount,
-                verticalAmount);
+		// scrollbar
+		if(!scrollbarLocked)
+		{
+			long now = System.currentTimeMillis();
+			if(now - scrollTimeStartMillis < 1000)
+			{
+				// If menu was already in the middle of scrolling animation,
+				// immediately scroll some more
+				// otherwise stuttery animation will play
+				scroll += verticalAmount * 10.0f;
+			}
+			scrollTimeStartMillis = now;
+			initialScroll = scroll;
+			rawScrollDelta = verticalAmount;
+			// Clamp scroll, otherwise scroll continues beyond screen and snaps
+			// back, looking finicky
+			clampScroll();
+		}
+		
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount,
+			verticalAmount);
 	}
 	
 	@Override
@@ -188,8 +188,8 @@ public abstract class NavigatorScreen extends Screen
 	public final void render(DrawContext context, int mouseX, int mouseY,
 		float partialTicks)
 	{
-        updateScrollAnimation();
-
+		updateScrollAnimation();
+		
 		// background
 		int bgx1 = middleX - 154;
 		int bgx2 = middleX + 154;
@@ -224,7 +224,7 @@ public abstract class NavigatorScreen extends Screen
 		
 		onRender(context, mouseX, mouseY, partialTicks);
 	}
-
+	
 	@Override
 	public void renderBackground(DrawContext context, int mouseX, int mouseY,
 		float deltaTicks)
@@ -292,14 +292,14 @@ public abstract class NavigatorScreen extends Screen
 		int shadowColor2 = 0x00000000;
 		context.fillGradient(x1, y1, x2, y2, shadowColor1, shadowColor2);
 	}
-
+	
 	protected final void drawBox(DrawContext context, int x1, int y1, int x2,
 		int y2, int color)
 	{
 		context.fill(x1, y1, x2, y2, color);
 		RenderUtils.drawBoxShadow2D(context, x1, y1, x2, y2);
 	}
-
+	
 	protected final int getBackgroundColor()
 	{
 		ClickGui gui = WurstClient.INSTANCE.getGui();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -19,15 +19,17 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Util;
 import net.minecraft.util.Util.OperatingSystem;
 import net.wurstclient.WurstClient;
-import net.wurstclient.analytics.WurstAnalytics;
+import net.wurstclient.analytics.PlausibleAnalytics;
 import net.wurstclient.commands.FriendsCmd;
 import net.wurstclient.hacks.XRayHack;
 import net.wurstclient.other_features.VanillaSpoofOtf;
 import net.wurstclient.settings.CheckboxSetting;
 import net.wurstclient.util.ChatUtils;
+import net.wurstclient.util.WurstColors;
 
 public class WurstOptionsScreen extends Screen
 {
@@ -57,7 +59,7 @@ public class WurstOptionsScreen extends Screen
 		WurstClient wurst = WurstClient.INSTANCE;
 		FriendsCmd friendsCmd = wurst.getCmds().friendsCmd;
 		CheckboxSetting middleClickFriends = friendsCmd.getMiddleClickFriends();
-		WurstAnalytics analytics = wurst.getAnalytics();
+		PlausibleAnalytics plausible = wurst.getPlausible();
 		VanillaSpoofOtf vanillaSpoofOtf = wurst.getOtfs().vanillaSpoofOtf;
 		CheckboxSetting forceEnglish =
 			wurst.getOtfs().translationsOtf.getForceEnglish();
@@ -70,15 +72,15 @@ public class WurstOptionsScreen extends Screen
 				.setChecked(!middleClickFriends.isChecked()));
 		
 		new WurstOptionsButton(-154, 48,
-			() -> "Count Users: " + (analytics.isEnabled() ? "ON" : "OFF"),
+			() -> "Count Users: " + (plausible.isEnabled() ? "ON" : "OFF"),
 			"Counts how many people are using Wurst and which versions are the"
-				+ " most popular. We use this data to decide when to stop"
-				+ " supporting old Minecraft versions.\n\n"
-				+ "We use a random ID to tell users apart so that this data can"
-				+ " never be linked to your Minecraft account. The random ID is"
-				+ " changed every 3 days to make extra sure that you remain"
-				+ " anonymous.",
-			b -> analytics.setEnabled(!analytics.isEnabled()));
+				+ " most popular. This data helps me to decide when I can stop"
+				+ " supporting old versions.\n\n"
+				+ "These statistics are completely anonymous, never sold, and"
+				+ " stay in the EU (I'm self-hosting Plausible in Germany)."
+				+ " There are no cookies or persistent identifiers"
+				+ " (see plausible.io).",
+			b -> plausible.setEnabled(!plausible.isEnabled()));
 		
 		new WurstOptionsButton(-154, 72,
 			() -> "Spoof Vanilla: "
@@ -117,26 +119,27 @@ public class WurstOptionsScreen extends Screen
 	{
 		OperatingSystem os = Util.getOperatingSystem();
 		
-		new WurstOptionsButton(54, 24, () -> "Website",
-			"click me!",
+		new WurstOptionsButton(54, 24, () -> "Website", "click me!",
 			b -> os.open("https://jwaxy.is-a.dev/Sujuk/"));
-/*
-		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "§n§lWurst.Wiki",
-			b -> os.open("https://www.wurstclient.net/options-wiki/"));
-		
-		new WurstOptionsButton(54, 72, () -> "WurstForum", "§n§lWurstForum.net",
-			b -> os.open("https://www.wurstclient.net/options-forum/"));
-
-		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
-			b -> os.open("https://www.wurstclient.net/options-twitter/"));
-
-		new WurstOptionsButton(54, 120, () -> "Donate",
-			"§n§lWurstClient.net/donate\n"
-				+ "Donate now to help me keep the Wurst Client alive and free"
-				+ " to use for everyone.\n\n"
-				+ "Every bit helps and is much appreciated! You can also get a"
-				+ " few cool perks in return.",
-			b -> os.open("https://www.wurstclient.net/options-donate/"));*/
+		/*
+		 * new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "§n§lWurst.Wiki",
+		 * b -> os.open("https://www.wurstclient.net/options-wiki/"));
+		 *
+		 * new WurstOptionsButton(54, 72, () -> "WurstForum",
+		 * "§n§lWurstForum.net",
+		 * b -> os.open("https://www.wurstclient.net/options-forum/"));
+		 *
+		 * new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
+		 * b -> os.open("https://www.wurstclient.net/options-twitter/"));
+		 *
+		 * new WurstOptionsButton(54, 120, () -> "Donate",
+		 * "§n§lWurstClient.net/donate\n"
+		 * + "Donate now to help me keep the Wurst Client alive and free"
+		 * + " to use for everyone.\n\n"
+		 * + "Every bit helps and is much appreciated! You can also get a"
+		 * + " few cool perks in return.",
+		 * b -> os.open("https://www.wurstclient.net/options-donate/"));
+		 */
 	}
 	
 	@Override
