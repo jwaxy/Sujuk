@@ -22,115 +22,142 @@ import net.wurstclient.clickgui.Component;
 import net.wurstclient.clickgui.components.ColorComponent;
 import net.wurstclient.keybinds.PossibleKeybind;
 import net.wurstclient.util.ColorUtils;
+import net.wurstclient.util.RenderUtils;
 import net.wurstclient.util.json.JsonException;
 import net.wurstclient.util.json.JsonUtils;
 import net.wurstclient.util.text.WText;
 
 public final class ColorSetting extends Setting
 {
-	private Color color;
+	private final float[] rgb = new float[3]; // [red, green, blue], values 0-1
 	private final Color defaultColor;
-	
+	private boolean rainbow;
+
 	public ColorSetting(String name, WText description, Color color)
 	{
 		super(name, description);
-		this.color = Objects.requireNonNull(color);
+		Objects.requireNonNull(color);
+		setRGB(color);
 		defaultColor = color;
 	}
-	
+
 	public ColorSetting(String name, String descriptionKey, Color color)
 	{
 		this(name, WText.translated(descriptionKey), color);
 	}
-	
+
 	public ColorSetting(String name, Color color)
 	{
 		this(name, WText.empty(), color);
 	}
-	
+
+	private void setRGB(Color color)
+	{
+		rgb[0] = color.getRed() / 255F;
+		rgb[1] = color.getGreen() / 255F;
+		rgb[2] = color.getBlue() / 255F;
+	}
+
+	private float[] getCurrentRGB()
+	{
+		if (rainbow)
+			return RenderUtils.getRainbowColor();
+		return rgb;
+	}
+
 	public Color getColor()
 	{
-		return color;
+		float[] c = getCurrentRGB();
+		// avoids allocation if rainbow is disabled
+		if (!rainbow)
+			return new Color(Math.round(rgb[0] * 255), Math.round(rgb[1] * 255), Math.round(rgb[2] * 255));
+		return new Color(c[0], c[1], c[2]); // may still allocate
 	}
-	
+
 	public float[] getColorF()
 	{
-		float red = color.getRed() / 255F;
-		float green = color.getGreen() / 255F;
-		float blue = color.getBlue() / 255F;
-		return new float[]{red, green, blue};
+		float[] c = getCurrentRGB();
+		return new float[]{c[0], c[1], c[2]};
 	}
-	
+
 	public int getColorI()
 	{
-		return color.getRGB() | 0xFF000000;
+		return getColorI(1.0f);
 	}
-	
+
 	public int getColorI(int alpha)
 	{
-		return color.getRGB() & 0x00FFFFFF | alpha << 24;
+		float[] c = getCurrentRGB();
+		int r = Math.round(c[0] * 255);
+		int g = Math.round(c[1] * 255);
+		int b = Math.round(c[2] * 255);
+		return (alpha << 24) | (r << 16) | (g << 8) | b;
 	}
-	
+
 	public int getColorI(float alpha)
 	{
 		return getColorI((int)(MathHelper.clamp(alpha, 0, 1) * 255));
 	}
-	
+
 	public int getRed()
 	{
-		return color.getRed();
+		return Math.round(getCurrentRGB()[0] * 255);
 	}
-	
+
 	public int getGreen()
 	{
-		return color.getGreen();
+		return Math.round(getCurrentRGB()[1] * 255);
 	}
-	
+
 	public int getBlue()
 	{
-		return color.getBlue();
+		return Math.round(getCurrentRGB()[2] * 255);
 	}
-	
+
 	public Color getDefaultColor()
 	{
 		return defaultColor;
 	}
-	
+
 	public void setColor(Color color)
 	{
-		this.color = Objects.requireNonNull(color);
+		Objects.requireNonNull(color);
+		setRGB(color);
 		WurstClient.INSTANCE.saveSettings();
 	}
-	
+
+	public boolean getRainbow() {
+		return rainbow;
+	}
+
 	@Override
 	public Component getComponent()
 	{
 		return new ColorComponent(this);
 	}
-	
+
 	@Override
 	public void fromJson(JsonElement json)
 	{
 		if(!JsonUtils.isString(json))
 			return;
-		
+
 		try
 		{
 			setColor(ColorUtils.parseHex(json.getAsString()));
-			
 		}catch(JsonException e)
 		{
 			e.printStackTrace();
 			setColor(defaultColor);
 		}
 	}
-	
+
 	@Override
 	public JsonElement toJson()
 	{
-		return new JsonPrimitive(ColorUtils.toHex(color));
+		return new JsonPrimitive(ColorUtils.toHex(getColor()));
 	}
-	
+
 	@Override
 	public JsonObject exportWikiData()
 	{
@@ -141,14 +168,14 @@ public final class ColorSetting extends Setting
 		json.addProperty("defaultColor", ColorUtils.toHex(defaultColor));
 		return json;
 	}
-	
+
 	@Override
 	public Set<PossibleKeybind> getPossibleKeybinds(String featureName)
 	{
 		String description = "Set " + featureName + " " + getName() + " to ";
 		String command = ".setcolor " + featureName.toLowerCase() + " "
-			+ getName().toLowerCase().replace(" ", "_") + " ";
-		
+				+ getName().toLowerCase().replace(" ", "_") + " ";
+
 		LinkedHashSet<PossibleKeybind> pkb = new LinkedHashSet<>();
 		addPKB(pkb, command + "#FF0000", description + "red");
 		addPKB(pkb, command + "#00FF00", description + "green");
@@ -160,10 +187,15 @@ public final class ColorSetting extends Setting
 		addPKB(pkb, command + "#000000", description + "black");
 		return pkb;
 	}
-	
+
 	private void addPKB(LinkedHashSet<PossibleKeybind> pkb, String command,
-		String description)
+						String description)
 	{
 		pkb.add(new PossibleKeybind(command, description));
 	}
+
+    public void setRainbow(boolean rainbow) {
+        this.rainbow = rainbow;
+    }
 }
+
