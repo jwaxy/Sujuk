@@ -20,19 +20,19 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "net.wurstclient.WurstInitializer"
+      "net.wurstclient.WurstInitializer",
+      "net.wurstclient.test.WurstE2ETestClient"
     ]
   },
   "mixins": [
     "wurst.mixins.json"
   ],
-  "accessWidener" : "wurst.accesswidener",
-
+  "accessWidener": "wurst.accesswidener",
   "depends": {
-    "fabricloader": ">=0.15.9",
-    "fabric-api": ">=0.91.1",
-    "minecraft": "~1.20.3-beta.3",
-    "java": ">=17"
+    "fabricloader": ">=0.16.13",
+    "fabric-api": ">=0.126.1",
+    "minecraft": "~1.21.6-beta.3",
+    "java": ">=21"
   },
   "suggests": {
     "meteor-client": "*"
@@ -45,7 +45,7 @@
   "custom": {
     "modmenu": {
       "links": {
-
+        "modmenu.donate": "https://www.wurstclient.net/modmenu-donate/"
       }
     }
   }

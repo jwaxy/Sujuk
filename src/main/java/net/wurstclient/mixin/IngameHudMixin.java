@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -17,10 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.wurstclient.WurstClient;
 import net.wurstclient.event.EventManager;
 import net.wurstclient.events.GUIRenderListener.GUIRenderEvent;
+import net.wurstclient.hack.HackList;
 
 @Mixin(InGameHud.class)
 public class IngameHudMixin
@@ -29,17 +32,17 @@ public class IngameHudMixin
 	@Final
 	private DebugHud debugHud;
 	
-	@Inject(
-		at = @At(value = "INVOKE",
-			target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableBlend()V",
-			remap = false,
-			ordinal = 3),
-		method = "render(Lnet/minecraft/client/gui/DrawContext;F)V")
-	private void onRender(DrawContext context, float tickDelta, CallbackInfo ci)
+	// runs after renderScoreboardSidebar()
+	// and before playerListHud.setVisible()
+	@Inject(at = @At("HEAD"),
+		method = "renderPlayerList(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/client/render/RenderTickCounter;)V")
+	private void onRenderPlayerList(DrawContext context,
+		RenderTickCounter tickCounter, CallbackInfo ci)
 	{
 		if(debugHud.shouldShowDebugHud())
 			return;
 		
+		float tickDelta = tickCounter.getTickProgress(true);
 		EventManager.fire(new GUIRenderEvent(context, tickDelta));
 	}
 	
@@ -49,11 +52,31 @@ public class IngameHudMixin
 	private void onRenderOverlay(DrawContext context, Identifier texture,
 		float opacity, CallbackInfo ci)
 	{
-		if(texture == null
-			|| !"textures/misc/pumpkinblur.png".equals(texture.getPath()))
+		if(texture == null)
 			return;
 		
-		if(WurstClient.INSTANCE.getHax().noPumpkinHack.isEnabled())
+		String path = texture.getPath();
+		HackList hax = WurstClient.INSTANCE.getHax();
+		
+		if("textures/misc/pumpkinblur.png".equals(path)
+			&& hax.noPumpkinHack.isEnabled())
 			ci.cancel();
+		
+		if("textures/misc/powder_snow_outline.png".equals(path)
+			&& hax.noOverlayHack.isEnabled())
+			ci.cancel();
+	}
+	
+	@Inject(at = @At("HEAD"),
+		method = "renderVignetteOverlay",
+		cancellable = true)
+	private void onRenderVignetteOverlay(DrawContext context, Entity entity,
+		CallbackInfo ci)
+	{
+		HackList hax = WurstClient.INSTANCE.getHax();
+		if(hax == null || !hax.noVignetteHack.isEnabled())
+			return;
+		
+		ci.cancel();
 	}
 }

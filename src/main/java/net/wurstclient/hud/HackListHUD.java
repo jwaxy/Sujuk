@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.Window;
+import net.minecraft.util.Colors;
 import net.wurstclient.WurstClient;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
@@ -49,16 +49,16 @@ public final class HackListHUD implements UpdateListener
 		if(WurstClient.INSTANCE.getHax().rainbowUiHack.isEnabled())
 		{
 			float[] acColor = WurstClient.INSTANCE.getGui().getAcColor();
-			textColor = 0x04 << 24 | (int)(acColor[0] * 256) << 16
-				| (int)(acColor[1] * 256) << 8 | (int)(acColor[2] * 256);
+			textColor = 0x04 << 24 | (int)(acColor[0] * 0xFF) << 16
+				| (int)(acColor[1] * 0xFF) << 8 | (int)(acColor[2] * 0xFF);
 			
 		}else
-			textColor = 0x04000000 | otf.getColor();
+			textColor = otf.getColor(0x04);
 		
 		int height = posY + activeHax.size() * 9;
-		Window sr = WurstClient.MC.getWindow();
 		
-		if(otf.getMode() == Mode.COUNT || height > sr.getScaledHeight())
+		if(otf.getMode() == Mode.COUNT
+			|| height > context.getScaledWindowHeight())
 			drawCounter(context);
 		else
 			drawHackList(context, partialTicks);
@@ -138,14 +138,16 @@ public final class HackListHUD implements UpdateListener
 			posX = 2;
 		else
 		{
-			int screenWidth = WurstClient.MC.getWindow().getScaledWidth();
+			int screenWidth = context.getScaledWindowWidth();
 			int stringWidth = tr.getWidth(s);
 			
 			posX = screenWidth - stringWidth - 2;
 		}
 		
-		context.drawText(tr, s, posX + 1, posY + 1, 0xff000000, false);
-		context.drawText(tr, s, posX, posY, textColor | 0xff000000, false);
+		context.drawText(tr, s, posX + 1, posY + 1, Colors.BLACK, false);
+		context.state.goUpLayer();
+		context.drawText(tr, s, posX, posY, textColor | Colors.BLACK, false);
+		context.state.goDownLayer();
 		
 		posY += 9;
 	}
@@ -164,7 +166,7 @@ public final class HackListHUD implements UpdateListener
 			posX = 2 - 5 * offset;
 		else
 		{
-			int screenWidth = WurstClient.MC.getWindow().getScaledWidth();
+			int screenWidth = context.getScaledWindowWidth();
 			int stringWidth = tr.getWidth(s);
 			
 			posX = screenWidth - stringWidth - 2 + 5 * offset;
@@ -173,7 +175,9 @@ public final class HackListHUD implements UpdateListener
 		int alpha = (int)(255 * (1 - offset / 4)) << 24;
 		context.drawText(tr, s, (int)posX + 1, posY + 1, 0x04000000 | alpha,
 			false);
+		context.state.goUpLayer();
 		context.drawText(tr, s, (int)posX, posY, textColor | alpha, false);
+		context.state.goDownLayer();
 		
 		posY += 9;
 	}
@@ -194,12 +198,9 @@ public final class HackListHUD implements UpdateListener
 		@Override
 		public boolean equals(Object obj)
 		{
-			// do not use Java 16 syntax here,
-			// it breaks Eclipse's Clean Up feature
-			if(!(obj instanceof HackListEntry))
+			if(!(obj instanceof HackListEntry other))
 				return false;
 			
-			HackListEntry other = (HackListEntry)obj;
 			return hack == other.hack;
 		}
 		

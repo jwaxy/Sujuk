@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -19,6 +19,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.PlainTextContent.Literal;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.util.Colors;
 import net.wurstclient.WurstClient;
 import net.wurstclient.other_features.NoChatReportsOtf;
 import net.wurstclient.util.ChatUtils;
@@ -106,14 +107,12 @@ public final class ForcedChatReportsScreen extends Screen
 	public void render(DrawContext context, int mouseX, int mouseY,
 		float partialTicks)
 	{
-		renderBackground(context, mouseX, mouseY, partialTicks);
-		
 		int centerX = width / 2;
 		int reasonY = (height - 68) / 2 - reasonHeight / 2;
 		int titleY = reasonY - textRenderer.fontHeight * 2;
 		
 		context.drawCenteredTextWithShadow(textRenderer, title, centerX, titleY,
-			0xAAAAAA);
+			Colors.LIGHT_GRAY);
 		reasonFormatted.drawCenterWithShadow(context, centerX, reasonY);
 		
 		for(Drawable drawable : drawables)

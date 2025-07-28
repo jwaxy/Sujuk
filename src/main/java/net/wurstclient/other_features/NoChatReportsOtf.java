@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
  * file, You can obtain one at: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 package net.wurstclient.other_features;
+
+import java.net.URI;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.minecraft.client.MinecraftClient;
@@ -16,10 +18,14 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.encryption.ClientPlayerSession;
 import net.minecraft.network.message.MessageChain;
 import net.minecraft.network.message.MessageSignatureData;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.wurstclient.Category;
 import net.wurstclient.DontBlock;
 import net.wurstclient.SearchTags;
+import net.wurstclient.events.ChatInputListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.other_feature.OtherFeature;
 import net.wurstclient.settings.CheckboxSetting;
@@ -29,7 +35,7 @@ import net.wurstclient.util.ChatUtils;
 @SearchTags({"no chat reports", "NoEncryption", "no encryption",
 	"NoChatSigning", "no chat signing"})
 public final class NoChatReportsOtf extends OtherFeature
-	implements UpdateListener
+	implements UpdateListener, ChatInputListener
 {
 	private final CheckboxSetting disableSignatures =
 		new CheckboxSetting("Disable signatures", true)
@@ -47,6 +53,7 @@ public final class NoChatReportsOtf extends OtherFeature
 		addSetting(disableSignatures);
 		
 		ClientLoginConnectionEvents.INIT.register(this::onLoginStart);
+		EVENTS.add(ChatInputListener.class, this);
 	}
 	
 	@Override
@@ -69,6 +76,33 @@ public final class NoChatReportsOtf extends OtherFeature
 					MC);
 		
 		EVENTS.remove(UpdateListener.class, this);
+	}
+	
+	@Override
+	public void onReceivedMessage(ChatInputEvent event)
+	{
+		if(!isActive())
+			return;
+		
+		Text originalText = event.getComponent();
+		if(!(originalText
+			.getContent() instanceof TranslatableTextContent trContent))
+			return;
+		
+		if(!trContent.getKey().equals("chat.disabled.missingProfileKey"))
+			return;
+		
+		event.cancel();
+		
+		ClickEvent clickEvent = new ClickEvent.OpenUrl(
+			URI.create("https://www.wurstclient.net/chat-disabled-mpk/"));
+		HoverEvent hoverEvent = new HoverEvent.ShowText(
+			Text.literal("Original message: ").append(originalText));
+		
+		ChatUtils.component(Text.literal(
+			"The server is refusing to let you chat without enabling chat reports. Click \u00a7nhere\u00a7r to learn more.")
+			.styled(
+				s -> s.withClickEvent(clickEvent).withHoverEvent(hoverEvent)));
 	}
 	
 	private void onLoginStart(ClientLoginNetworkHandler handler,

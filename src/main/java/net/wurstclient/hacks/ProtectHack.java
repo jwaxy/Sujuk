@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -45,7 +45,7 @@ public final class ProtectHack extends Hack
 		new AttackSpeedSliderSetting();
 	
 	private final SwingHandSetting swingHand = new SwingHandSetting(
-		"How Protect should swing your hand when attacking.", SwingHand.CLIENT);
+		SwingHandSetting.genericCombatDescription(this), SwingHand.CLIENT);
 	
 	private final CheckboxSetting useAi =
 		new CheckboxSetting("Use AI (experimental)", false);
@@ -285,7 +285,6 @@ public final class ProtectHack extends Hack
 				return;
 			
 			// attack enemy
-			WURST.getHax().criticalsHack.doCritical();
 			MC.interactionManager.attackEntity(MC.player, enemy);
 			swingHand.swing(Hand.MAIN_HAND);
 			speed.resetTimer();

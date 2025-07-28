@@ -120,6 +120,7 @@ public final class HackList implements UpdateListener
 	public final KillPotionHack killPotionHack = new KillPotionHack();
 	public final LiquidsHack liquidsHack = new LiquidsHack();
 	public final LsdHack lsdHack = new LsdHack();
+	public final MaceDmgHack maceDmgHack = new MaceDmgHack();
 	public final MassTpaHack massTpaHack = new MassTpaHack();
 	public final MileyCyrusHack mileyCyrusHack = new MileyCyrusHack();
 	public final MobEspHack mobEspHack = new MobEspHack();
@@ -141,6 +142,7 @@ public final class HackList implements UpdateListener
 	public final NoShieldOverlayHack noShieldOverlayHack =
 		new NoShieldOverlayHack();
 	public final NoSlowdownHack noSlowdownHack = new NoSlowdownHack();
+	public final NoVignetteHack noVignetteHack = new NoVignetteHack();
 	public final NoWeatherHack noWeatherHack = new NoWeatherHack();
 	public final NoWebHack noWebHack = new NoWebHack();
 	public final NukerHack nukerHack = new NukerHack();
@@ -170,6 +172,7 @@ public final class HackList implements UpdateListener
 	public final SpeedNukerHack speedNukerHack = new SpeedNukerHack();
 	public final SpiderHack spiderHack = new SpiderHack();
 	public final StepHack stepHack = new StepHack();
+	public final TemplateToolHack templateToolHack = new TemplateToolHack();
 	public final ThrowHack throwHack = new ThrowHack();
 	public final TillauraHack tillauraHack = new TillauraHack();
 	public final TimerHack timerHack = new TimerHack();
@@ -182,6 +185,7 @@ public final class HackList implements UpdateListener
 	public final TrollPotionHack trollPotionHack = new TrollPotionHack();
 	public final TrueSightHack trueSightHack = new TrueSightHack();
 	public final TunnellerHack tunnellerHack = new TunnellerHack();
+	public final VeinMinerHack veinMinerHack = new VeinMinerHack();
 	public final VehicleHack vehicleHack = new VehicleHack();
 	public final XRayHack xRayHack = new XRayHack();
 	

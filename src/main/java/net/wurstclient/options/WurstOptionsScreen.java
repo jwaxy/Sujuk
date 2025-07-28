@@ -71,15 +71,13 @@ public class WurstOptionsScreen extends Screen
 		
 		new WurstOptionsButton(-154, 48,
 			() -> "Count Users: " + (analytics.isEnabled() ? "ON" : "OFF"),
-			"Counts how many people are using Wurst\n"
-				+ "and which versions are the most popular.\n"
-				+ "We use this data to decide when to stop\n"
-				+ "supporting old Minecraft versions.\n\n"
-				+ "We use a random ID to tell users apart\n"
-				+ "so that this data can never be linked to\n"
-				+ "your Minecraft account. The random ID is\n"
-				+ "changed every 3 days to make extra sure\n"
-				+ "that you remain anonymous.",
+			"Counts how many people are using Wurst and which versions are the"
+				+ " most popular. We use this data to decide when to stop"
+				+ " supporting old Minecraft versions.\n\n"
+				+ "We use a random ID to tell users apart so that this data can"
+				+ " never be linked to your Minecraft account. The random ID is"
+				+ " changed every 3 days to make extra sure that you remain"
+				+ " anonymous.",
 			b -> analytics.setEnabled(!analytics.isEnabled()));
 		
 		new WurstOptionsButton(-154, 72,
@@ -119,23 +117,26 @@ public class WurstOptionsScreen extends Screen
 	{
 		OperatingSystem os = Util.getOperatingSystem();
 		
-		new WurstOptionsButton(54, 24, () -> "Website", "click me!",
+		new WurstOptionsButton(54, 24, () -> "Website",
+			"click me!",
 			b -> os.open("https://jwaxy.is-a.dev/Sujuk/"));
+/*
+		new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "§n§lWurst.Wiki",
+			b -> os.open("https://www.wurstclient.net/options-wiki/"));
 		
-		// new WurstOptionsButton(54, 48, () -> "Wurst Wiki", "Wurst.Wiki",
-		// b -> os.open(
-		// "https://wurst.wiki/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Wurst+Wiki"));
-		//
-		// new WurstOptionsButton(54, 72, () -> "WurstForum", "WurstForum.net",
-		// b -> os.open(
-		// "https://wurstforum.net/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=WurstForum"));
-		//
-		// new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
-		// b -> os.open("https://www.wurstclient.net/twitter/"));
-		//
-		// new WurstOptionsButton(54, 120, () -> "Donate",
-		// "WurstClient.net/donate", b -> os.open(
-		// "https://www.wurstclient.net/donate/?utm_source=Wurst+Client&utm_medium=Wurst+Options&utm_content=Donate"));
+		new WurstOptionsButton(54, 72, () -> "WurstForum", "§n§lWurstForum.net",
+			b -> os.open("https://www.wurstclient.net/options-forum/"));
+
+		new WurstOptionsButton(54, 96, () -> "Twitter", "@Wurst_Imperium",
+			b -> os.open("https://www.wurstclient.net/options-twitter/"));
+
+		new WurstOptionsButton(54, 120, () -> "Donate",
+			"§n§lWurstClient.net/donate\n"
+				+ "Donate now to help me keep the Wurst Client alive and free"
+				+ " to use for everyone.\n\n"
+				+ "Every bit helps and is much appreciated! You can also get a"
+				+ " few cool perks in return.",
+			b -> os.open("https://www.wurstclient.net/options-donate/"));*/
 	}
 	
 	@Override
@@ -148,7 +149,6 @@ public class WurstOptionsScreen extends Screen
 	public void render(DrawContext context, int mouseX, int mouseY,
 		float partialTicks)
 	{
-		renderBackground(context, mouseX, mouseY, partialTicks);
 		renderTitles(context);
 		
 		for(Drawable drawable : drawables)
@@ -165,14 +165,14 @@ public class WurstOptionsScreen extends Screen
 		int y2 = height / 4 + 24 - 28;
 		
 		context.drawCenteredTextWithShadow(tr, "Sujuk Options", middleX, y1,
-			0xffffff);
+			Colors.WHITE);
 		
 		context.drawCenteredTextWithShadow(tr, "Settings", middleX - 104, y2,
-			0xcccccc);
+			WurstColors.VERY_LIGHT_GRAY);
 		context.drawCenteredTextWithShadow(tr, "Managers", middleX, y2,
-			0xcccccc);
+			WurstColors.VERY_LIGHT_GRAY);
 		context.drawCenteredTextWithShadow(tr, "Links", middleX + 104, y2,
-			0xcccccc);
+			WurstColors.VERY_LIGHT_GRAY);
 	}
 	
 	private void renderButtonTooltip(DrawContext context, int mouseX,

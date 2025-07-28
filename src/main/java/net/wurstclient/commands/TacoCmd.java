@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -7,12 +7,8 @@
  */
 package net.wurstclient.commands;
 
-import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.Window;
 import net.minecraft.util.Identifier;
 import net.wurstclient.Category;
 import net.wurstclient.command.CmdException;
@@ -20,15 +16,16 @@ import net.wurstclient.command.CmdSyntaxError;
 import net.wurstclient.command.Command;
 import net.wurstclient.events.GUIRenderListener;
 import net.wurstclient.events.UpdateListener;
+import net.wurstclient.util.RenderUtils;
 
 public final class TacoCmd extends Command
 	implements GUIRenderListener, UpdateListener
 {
 	private final Identifier[] tacos =
-		{new Identifier("wurst", "dancingtaco1.png"),
-			new Identifier("wurst", "dancingtaco2.png"),
-			new Identifier("wurst", "dancingtaco3.png"),
-			new Identifier("wurst", "dancingtaco4.png")};
+		{Identifier.of("wurst", "dancingtaco1.png"),
+			Identifier.of("wurst", "dancingtaco2.png"),
+			Identifier.of("wurst", "dancingtaco3.png"),
+			Identifier.of("wurst", "dancingtaco4.png")};
 	
 	private boolean enabled;
 	private int ticks = 0;
@@ -84,26 +81,15 @@ public final class TacoCmd extends Command
 	@Override
 	public void onRenderGUI(DrawContext context, float partialTicks)
 	{
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		int color = WURST.getHax().rainbowUiHack.isEnabled()
+			? RenderUtils.toIntColor(WURST.getGui().getAcColor(), 1)
+			: 0xFFFFFFFF;
 		
-		if(WURST.getHax().rainbowUiHack.isEnabled())
-		{
-			float[] acColor = WURST.getGui().getAcColor();
-			RenderSystem.setShaderColor(acColor[0], acColor[1], acColor[2], 1);
-			
-		}else
-			RenderSystem.setShaderColor(1, 1, 1, 1);
-		
-		Window sr = MC.getWindow();
-		int x = sr.getScaledWidth() / 2 - 32 + 76;
-		int y = sr.getScaledHeight() - 32 - 19;
+		int x = context.getScaledWindowWidth() / 2 - 32 + 76;
+		int y = context.getScaledWindowHeight() - 32 - 19;
 		int w = 64;
 		int h = 32;
-		context.drawTexture(tacos[ticks / 8], x, y, 0, 0, w, h, w, h);
-		
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glDisable(GL11.GL_BLEND);
+		context.drawTexture(RenderPipelines.GUI_TEXTURED, tacos[ticks / 8], x,
+			y, 0, 0, w, h, w, h, color);
 	}
 }

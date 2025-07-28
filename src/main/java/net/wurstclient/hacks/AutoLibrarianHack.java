@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -9,24 +9,25 @@ package net.wurstclient.hacks;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.network.packet.c2s.play.SelectMerchantTradeC2SPacket;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -51,6 +52,7 @@ import net.wurstclient.settings.FacingSetting;
 import net.wurstclient.settings.SliderSetting;
 import net.wurstclient.settings.SliderSetting.ValueDisplay;
 import net.wurstclient.settings.SwingHandSetting;
+import net.wurstclient.settings.SwingHandSetting.SwingHand;
 import net.wurstclient.util.*;
 import net.wurstclient.util.BlockBreaker.BlockBreakingParams;
 import net.wurstclient.util.BlockPlacer.BlockPlacingParams;
@@ -69,10 +71,11 @@ public final class AutoLibrarianHack extends Hack
 			+ "You can also set a maximum price for each book, in case you"
 			+ " already have a villager selling it but you want it for a"
 			+ " cheaper price.",
-		"minecraft:depth_strider", "minecraft:efficiency",
-		"minecraft:feather_falling", "minecraft:fortune", "minecraft:looting",
-		"minecraft:mending", "minecraft:protection", "minecraft:respiration",
-		"minecraft:sharpness", "minecraft:silk_touch", "minecraft:unbreaking");
+		"minecraft:depth_strider;3", "minecraft:efficiency;5",
+		"minecraft:feather_falling;4", "minecraft:fortune;3",
+		"minecraft:looting;3", "minecraft:mending;1", "minecraft:protection;4",
+		"minecraft:respiration;3", "minecraft:sharpness;5",
+		"minecraft:silk_touch;1", "minecraft:unbreaking;3");
 	
 	private final CheckboxSetting lockInTrade = new CheckboxSetting(
 		"Lock in trade",
@@ -89,8 +92,8 @@ public final class AutoLibrarianHack extends Hack
 	private final SliderSetting range =
 		new SliderSetting("Range", 5, 1, 6, 0.05, ValueDisplay.DECIMAL);
 	
-	private final FacingSetting facing = FacingSetting
-		.withoutPacketSpam("How to face the villager and job site.\n\n"
+	private final FacingSetting facing = FacingSetting.withoutPacketSpam(
+		"How AutoLibrarian should face the villager and job site.\n\n"
 			+ "\u00a7lOff\u00a7r - Don't face the villager at all. Will be"
 			+ " detected by anti-cheat plugins.\n\n"
 			+ "\u00a7lServer-side\u00a7r - Face the villager on the"
@@ -101,8 +104,7 @@ public final class AutoLibrarianHack extends Hack
 			+ " can be disorienting to look at.");
 	
 	private final SwingHandSetting swingHand =
-		new SwingHandSetting("How to swing your hand when interacting with the"
-			+ " villager and job site.");
+		new SwingHandSetting(this, SwingHand.SERVER);
 	
 	private final SliderSetting repairMode = new SliderSetting("Repair mode",
 		"Prevents AutoLibrarian from using your axe when its durability reaches"
@@ -353,7 +355,8 @@ public final class AutoLibrarianHack extends Hack
 			hand, params.toHitResult());
 		
 		// swing hand
-		if(result.isAccepted() && result.shouldSwingHand())
+		if(result instanceof ActionResult.Success success
+			&& success.swingSource() == ActionResult.SwingSource.CLIENT)
 			swingHand.swing(hand);
 		
 		// reset sneak
@@ -395,7 +398,8 @@ public final class AutoLibrarianHack extends Hack
 			im.interactEntity(player, villager, hand);
 		
 		// swing hand
-		if(actionResult.isAccepted() && actionResult.shouldSwingHand())
+		if(actionResult instanceof ActionResult.Success success
+			&& success.swingSource() == ActionResult.SwingSource.CLIENT)
 			swingHand.swing(hand);
 		
 		// set cooldown
@@ -413,23 +417,27 @@ public final class AutoLibrarianHack extends Hack
 		for(TradeOffer tradeOffer : tradeOffers)
 		{
 			ItemStack stack = tradeOffer.getSellItem();
-			if(!(stack.getItem() instanceof EnchantedBookItem))
+			if(stack.getItem() != Items.ENCHANTED_BOOK)
 				continue;
 			
-			NbtList enchantmentNbt = EnchantedBookItem.getEnchantmentNbt(stack);
-			if(enchantmentNbt.isEmpty())
+			Set<Entry<RegistryEntry<Enchantment>>> enchantmentLevelMap =
+				EnchantmentHelper.getEnchantments(stack)
+					.getEnchantmentEntries();
+			if(enchantmentLevelMap.isEmpty())
 				continue;
 			
-			NbtList bookNbt = EnchantedBookItem.getEnchantmentNbt(stack);
-			String enchantment = bookNbt.getCompound(0).getString("id");
-			int level = bookNbt.getCompound(0).getInt("lvl");
-			int price = tradeOffer.getAdjustedFirstBuyItem().getCount();
+			Object2IntMap.Entry<RegistryEntry<Enchantment>> firstEntry =
+				enchantmentLevelMap.stream().findFirst().orElseThrow();
+			
+			String enchantment = firstEntry.getKey().getIdAsString();
+			int level = firstEntry.getIntValue();
+			int price = tradeOffer.getDisplayedFirstBuyItem().getCount();
 			BookOffer bookOffer = new BookOffer(enchantment, level, price);
 			
-			if(!bookOffer.isValid())
+			if(!bookOffer.isFullyValid())
 			{
 				System.out.println("Found invalid enchanted book offer.\n"
-					+ "NBT data: " + stack.getNbt());
+					+ "Component data: " + enchantmentLevelMap);
 				continue;
 			}
 			
@@ -450,9 +458,9 @@ public final class AutoLibrarianHack extends Hack
 				.filter(VillagerEntity.class::isInstance)
 				.map(e -> (VillagerEntity)e).filter(e -> e.getHealth() > 0)
 				.filter(e -> player.squaredDistanceTo(e) <= rangeSq)
-				.filter(e -> e.getVillagerData()
-					.getProfession() == VillagerProfession.LIBRARIAN)
-				.filter(e -> e.getVillagerData().getLevel() == 1)
+				.filter(e -> e.getVillagerData().profession().getKey()
+					.orElse(null) == VillagerProfession.LIBRARIAN)
+				.filter(e -> e.getVillagerData().level() == 1)
 				.filter(e -> !experiencedVillagers.contains(e));
 		
 		villager = stream
@@ -510,43 +518,21 @@ public final class AutoLibrarianHack extends Hack
 	@Override
 	public void onRender(MatrixStack matrixStack, float partialTicks)
 	{
-		// GL settings
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
-		
-		matrixStack.push();
-		
-		RegionPos region = RenderUtils.getCameraRegion();
-		RenderUtils.applyRegionalRenderOffset(matrixStack, region);
-		Vec3d regionOffset = region.negate().toVec3d();
-		
-		RenderSystem.setShaderColor(0, 1, 0, 0.75F);
+		int green = 0xC000FF00;
+		int red = 0xC0FF0000;
 		
 		if(villager != null)
-			RenderUtils.drawOutlinedBox(
-				villager.getBoundingBox().offset(regionOffset), matrixStack);
+			RenderUtils.drawOutlinedBox(matrixStack, villager.getBoundingBox(),
+				green, false);
 		
 		if(jobSite != null)
-			RenderUtils.drawOutlinedBox(new Box(jobSite).offset(regionOffset),
-				matrixStack);
+			RenderUtils.drawOutlinedBox(matrixStack, new Box(jobSite), green,
+				false);
 		
-		RenderSystem.setShaderColor(1, 0, 0, 0.75F);
-		
-		for(VillagerEntity villager : experiencedVillagers)
-		{
-			Box box = villager.getBoundingBox().offset(regionOffset);
-			RenderUtils.drawOutlinedBox(box, matrixStack);
-			RenderUtils.drawCrossBox(box, matrixStack);
-		}
-		
-		matrixStack.pop();
-		
-		// GL resets
-		RenderSystem.setShaderColor(1, 1, 1, 1);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glDisable(GL11.GL_BLEND);
+		List<Box> expVilBoxes = experiencedVillagers.stream()
+			.map(VillagerEntity::getBoundingBox).toList();
+		RenderUtils.drawOutlinedBoxes(matrixStack, expVilBoxes, red, false);
+		RenderUtils.drawCrossBoxes(matrixStack, expVilBoxes, red, false);
 		
 		if(breakingJobSite)
 			overlay.render(matrixStack, partialTicks, jobSite);

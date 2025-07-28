@@ -11,7 +11,6 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -57,7 +56,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public float lastPitch;
 	@Shadow
 	public ClientPlayNetworkHandler networkHandler;
-	
+
 	@Shadow
 	@Final
 	protected MinecraftClient client;
@@ -99,45 +98,19 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	}
 	
 	/**
-	 * This mixin runs just before the tickMovement() method calls
-	 * isUsingItem(), so that the onIsUsingItem() mixin knows which
-	 * call to intercept.
+	 * Allows NoSlowdown to intercept the isUsingItem() call in
+	 * tickMovement().
 	 */
-	@Inject(at = @At(value = "INVOKE",
+	@WrapOperation(at = @At(value = "INVOKE",
 		target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z",
 		ordinal = 0), method = "tickMovement()V")
-	private void onTickMovementItemUse(CallbackInfo ci)
+	private boolean wrapTickMovementItemUse(ClientPlayerEntity instance,
+		Operation<Boolean> original)
 	{
 		if(WurstClient.INSTANCE.getHax().noSlowdownHack.isEnabled())
-			hideNextItemUse = true;
-	}
-	
-	/**
-	 * Pretends that the player is not using an item when instructed to do so by
-	 * the onTickMovement() mixin.
-	 */
-	@Inject(at = @At("HEAD"), method = "isUsingItem()Z", cancellable = true)
-	private void onIsUsingItem(CallbackInfoReturnable<Boolean> cir)
-	{
-		if(!hideNextItemUse)
-			return;
+			return false;
 		
-		cir.setReturnValue(false);
-		hideNextItemUse = false;
-	}
-	
-	/**
-	 * This mixin is injected into a random field access later in the
-	 * tickMovement() method to ensure that hideNextItemUse is always reset
-	 * after the item use slowdown calculation.
-	 */
-	@Inject(at = @At(value = "FIELD",
-		target = "Lnet/minecraft/client/network/ClientPlayerEntity;ticksToNextAutojump:I",
-		opcode = Opcodes.GETFIELD,
-		ordinal = 0), method = "tickMovement()V")
-	private void afterIsUsingItem(CallbackInfo ci)
-	{
-		hideNextItemUse = false;
+		return original.call(instance);
 	}
 	
 	@Inject(at = @At(value = "INVOKE",
@@ -148,7 +121,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(WurstClient.INSTANCE.getHax().vehicleHack.forceHighestJump())
 			mountJumpStrength = 1;
 	}
-	
+
 	@Inject(at = @At("HEAD"), method = "sendMovementPackets()V")
 	private void onSendMovementPacketsHEAD(CallbackInfo ci)
 	{
@@ -184,8 +157,8 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(at = @At(value = "FIELD",
 		target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;",
 		opcode = Opcodes.GETFIELD,
-		ordinal = 0), method = "updateNausea()V")
-	private void beforeUpdateNausea(CallbackInfo ci)
+		ordinal = 0), method = "tickNausea(Z)V")
+	private void beforeTickNausea(boolean fromPortalEffect, CallbackInfo ci)
 	{
 		if(!WurstClient.INSTANCE.getHax().portalGuiHack.isEnabled())
 			return;
@@ -201,8 +174,8 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(at = @At(value = "FIELD",
 		target = "Lnet/minecraft/client/network/ClientPlayerEntity;nauseaIntensity:F",
 		opcode = Opcodes.GETFIELD,
-		ordinal = 1), method = "updateNausea()V")
-	private void afterUpdateNausea(CallbackInfo ci)
+		ordinal = 1), method = "tickNausea(Z)V")
+	private void afterTickNausea(boolean fromPortalEffect, CallbackInfo ci)
 	{
 		if(tempCurrentScreen == null)
 			return;
@@ -311,7 +284,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	}
 	
 	@Override
-	public boolean hasStatusEffect(StatusEffect effect)
+	public boolean hasStatusEffect(RegistryEntry<StatusEffect> effect)
 	{
 		HackList hax = WurstClient.INSTANCE.getHax();
 		
@@ -323,9 +296,39 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			&& hax.noLevitationHack.isEnabled())
 			return false;
 		
+		if(effect == StatusEffects.BLINDNESS && hax.antiBlindHack.isEnabled())
+			return false;
+
 		if(effect == StatusEffects.DARKNESS && hax.antiBlindHack.isEnabled())
 			return false;
 		
 		return super.hasStatusEffect(effect);
+	}
+	
+	@Override
+	public float getStepHeight()
+	{
+		return WurstClient.INSTANCE.getHax().stepHack
+			.adjustStepHeight(super.getStepHeight());
+	}
+	
+	@Override
+	public double getBlockInteractionRange()
+	{
+		HackList hax = WurstClient.INSTANCE.getHax();
+		if(hax == null || !hax.reachHack.isEnabled())
+			return super.getBlockInteractionRange();
+
+		return hax.reachHack.getReachDistance();
+	}
+
+	@Override
+	public double getEntityInteractionRange()
+	{
+		HackList hax = WurstClient.INSTANCE.getHax();
+		if(hax == null || !hax.reachHack.isEnabled())
+			return super.getEntityInteractionRange();
+		
+		return hax.reachHack.getReachDistance();
 	}
 }

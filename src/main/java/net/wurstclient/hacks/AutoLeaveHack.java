@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -7,6 +7,7 @@
  */
 package net.wurstclient.hacks;
 
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.wurstclient.Category;
@@ -111,7 +112,8 @@ public final class AutoLeaveHack extends Hack implements UpdateListener
 	
 	public static enum Mode
 	{
-		QUIT("Quit", () -> MC.world.disconnect()),
+		QUIT("Quit",
+			() -> MC.world.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT)),
 		
 		CHARS("Chars", () -> MC.getNetworkHandler().sendChatMessage("\u00a7")),
 		

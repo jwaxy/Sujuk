@@ -10,12 +10,16 @@ package net.wurstclient.mixin;
 import java.util.List;
 
 import net.fabricmc.loader.api.FabricLoader;
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -31,9 +35,11 @@ import net.wurstclient.options.WurstOptionsScreen;
 @Mixin(GameMenuScreen.class)
 public abstract class GameMenuScreenMixin extends Screen
 {
+	@Unique
 	private static final Identifier WURST_TEXTURE =
-		new Identifier("wurst", "sujuk_128.png");
+		Identifier.of("wurst", "sujuk_128.png");
 	
+	@Unique
 	private ButtonWidget wurstOptionsButton;
 	
 	private GameMenuScreenMixin(WurstClient wurst, Text title)
@@ -50,90 +56,120 @@ public abstract class GameMenuScreenMixin extends Screen
 		addWurstOptionsButton();
 	}
 	
-	// @Inject(at = @At("TAIL"),
-	// method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
-	// private void onRender(DrawContext context, int mouseX, int mouseY,
-	// float partialTicks, CallbackInfo ci)
-	// {
-	// if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
-	// return;
-	//
-	// GL11.glEnable(GL11.GL_CULL_FACE);
-	// GL11.glDisable(GL11.GL_DEPTH_TEST);
-	// GL11.glDepthMask(false);
-	// GL11.glEnable(GL11.GL_BLEND);
-	// GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-	// RenderSystem.setShaderColor(1, 1, 1, 1);
-	//
-	// int x = wurstOptionsButton.getX() + 34;
-	// int y = wurstOptionsButton.getY() + 2;
-	// int w = 63;
-	// int h = 16;
-	// int fw = 63;
-	// int fh = 16;
-	// float u = 0;
-	// float v = 0;
-	// context.drawTexture(WURST_TEXTURE, x, y, u, v, w, h, fw, fh);
-	// }
+	/*@Inject(at = @At("TAIL"),
+		method = "render(Lnet/minecraft/client/gui/DrawContext;IIF)V")
+	private void onRender(DrawContext context, int mouseX, int mouseY,
+		float partialTicks, CallbackInfo ci)
+	{
+		if(!WurstClient.INSTANCE.isEnabled() || wurstOptionsButton == null)
+			return;
+		
+		int x = wurstOptionsButton.getX() + 34;
+		int y = wurstOptionsButton.getY() + 2;
+		int w = 63;
+		int h = 16;
+		int fw = 63;
+		int fh = 16;
+		float u = 0;
+		float v = 0;
+		context.state.goUpLayer();
+		context.drawTexture(RenderPipelines.GUI_TEXTURED, WURST_TEXTURE, x, y,
+			u, v, w, h, fw, fh);
+		context.state.goDownLayer();
+	}*/
 	
 	private void addWurstOptionsButton()
 	{
 		List<ClickableWidget> buttons = Screens.getButtons(this);
 		
-		int buttonY = -1;
-		int buttonI = -1;
+		// Fallback position
+		int buttonX = width / 2 - 102;
+		int buttonY = 60;
+		int buttonWidth = 204;
+
+        if(FabricLoader.getInstance().isModLoaded("modmenu"))
+        {
+            buttonWidth = 98;
+        }
+
+		int buttonHeight = 20;
 		
-		for(int i = 0; i < buttons.size(); i++)
+		for(ClickableWidget button : buttons)
 		{
-			ClickableWidget button = buttons.get(i);
-			
-			// insert Wurst button in place of feedback/report row
-			if(isFeedbackButton(button))
+			// If feedback button exists, use its position
+			if(isTrKey(button, "menu.sendFeedback")
+				|| isTrKey(button, "menu.feedback"))
 			{
 				buttonY = button.getY();
-				buttonI = i;
+				break;
 			}
 			
-			// make feedback/report buttons invisible
-			// (removing them completely would break ModMenu)
-			if(isFeedbackButton(button) || isBugReportButton(button))
-				button.visible = false;
+			// If options button exists, go 24px above it
+			if(isTrKey(button, "menu.options"))
+			{
+				buttonY = button.getY() - 24;
+				break;
+			}
 		}
 		
-		if(buttonY == -1 || buttonI == -1)
-			throw new CrashException(
-				CrashReport.create(new IllegalStateException(),
-					"Someone deleted the Feedback button!"));
+		// Clear required space for Wurst Options
+		hideFeedbackReportAndServerLinksButtons();
+		ensureSpaceAvailable(buttonX, buttonY, buttonWidth, buttonHeight);
 		
-		int btnWidth = 204;
-		
-		if(FabricLoader.getInstance().isModLoaded("modmenu"))
-		{
-			btnWidth = 98;
-		}
-		
+		// Create Wurst Options button
+		MutableText buttonText = Text.literal("Sujuk Options");
 		wurstOptionsButton = ButtonWidget
-			.builder(Text.literal("Sujuk Options"), b -> openWurstOptions())
-			.dimensions(width / 2 - 102, buttonY, btnWidth, 20).build();
+			.builder(buttonText, b -> openWurstOptions())
+			.dimensions(buttonX, buttonY, buttonWidth, buttonHeight).build();
 		buttons.add(wurstOptionsButton);
 	}
 	
+	@Unique
+	private void hideFeedbackReportAndServerLinksButtons()
+	{
+		for(ClickableWidget button : Screens.getButtons(this))
+			if(isTrKey(button, "menu.sendFeedback")
+				|| isTrKey(button, "menu.reportBugs")
+				|| isTrKey(button, "menu.feedback")
+				|| isTrKey(button, "menu.server_links"))
+				button.visible = false;
+	}
+
+	@Unique
+	private void ensureSpaceAvailable(int x, int y, int width, int height)
+	{
+		// Check if there are any buttons in the way
+		ArrayList<ClickableWidget> buttonsInTheWay = new ArrayList<>();
+		for(ClickableWidget button : Screens.getButtons(this))
+		{
+			if(button.getRight() < x || button.getX() > x + width
+				|| button.getBottom() < y || button.getY() > y + height)
+				continue;
+
+			if(!button.visible)
+				continue;
+
+			buttonsInTheWay.add(button);
+		}
+
+		// If not, we're done
+		if(buttonsInTheWay.isEmpty())
+			return;
+
+		// If yes, clear space below and move the buttons there
+		ensureSpaceAvailable(x, y + 24, width, height);
+		for(ClickableWidget button : buttonsInTheWay)
+			button.setY(button.getY() + 24);
+	}
+
+	@Unique
 	private void openWurstOptions()
 	{
 		client.setScreen(new WurstOptionsScreen(this));
 	}
 	
-	private boolean isFeedbackButton(ClickableWidget button)
-	{
-		return hasTrKey(button, "menu.sendFeedback");
-	}
-	
-	private boolean isBugReportButton(ClickableWidget button)
-	{
-		return hasTrKey(button, "menu.reportBugs");
-	}
-	
-	private boolean hasTrKey(ClickableWidget button, String key)
+	@Unique
+	private boolean isTrKey(ClickableWidget button, String key)
 	{
 		String message = button.getMessage().getString();
 		return message != null && message.equals(I18n.translate(key));

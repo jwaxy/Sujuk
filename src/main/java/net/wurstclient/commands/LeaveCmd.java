@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -7,6 +7,7 @@
  */
 package net.wurstclient.commands;
 
+import net.minecraft.client.world.ClientWorld;
 import net.wurstclient.command.CmdException;
 import net.wurstclient.command.CmdSyntaxError;
 import net.wurstclient.command.Command;
@@ -27,7 +28,7 @@ public final class LeaveCmd extends Command
 		else if(args.length != 0)
 			throw new CmdSyntaxError();
 		
-		MC.world.disconnect();
+		MC.world.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT);
 	}
 	
 	@Override

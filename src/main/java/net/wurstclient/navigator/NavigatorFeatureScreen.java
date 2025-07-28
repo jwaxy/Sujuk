@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2024 Wurst-Imperium and contributors.
+ * Copyright (c) 2014-2025 Wurst-Imperium and contributors.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -15,25 +15,17 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.math.MathHelper;
 import net.wurstclient.Feature;
 import net.wurstclient.WurstClient;
@@ -48,6 +40,7 @@ import net.wurstclient.keybinds.PossibleKeybind;
 import net.wurstclient.settings.Setting;
 import net.wurstclient.util.ChatUtils;
 import net.wurstclient.util.RenderUtils;
+import net.wurstclient.util.WurstColors;
 
 public final class NavigatorFeatureScreen extends NavigatorScreen
 {
@@ -88,7 +81,6 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 		// primary button
 		String primaryAction = feature.getPrimaryAction();
 		boolean hasPrimaryAction = !primaryAction.isEmpty();
-		boolean hasHelp = false;// !feature.getHelpPage().isEmpty();
 		if(hasPrimaryAction)
 		{
 			primaryButton =
@@ -108,23 +100,9 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 						.setMessage(Text.literal(feature.getPrimaryAction()));
 					WurstClient.INSTANCE.getNavigator()
 						.addPreference(feature.getName());
-				}).dimensions(width / 2 - 151, height - 65, hasHelp ? 149 : 302,
-					18).build();
+				}).dimensions(width / 2 - 151, height - 65, 302, 18).build();
 			addDrawableChild(primaryButton);
 		}
-		
-		// help button
-		// if(hasHelp)
-		// method_37063(new ButtonWidget(
-		// width / 2 + (hasPrimaryAction ? 2 : -151), height - 65,
-		// hasPrimaryAction ? 149 : 302, 20, "Help", b -> {
-		// MiscUtils.openLink("https://www.wurstclient.net/wiki/"
-		// + feature.getHelpPage() + "/");
-		// wurst.navigator.analytics.trackEvent("help", "open",
-		// feature.getName());
-		// wurst.navigator.addPreference(feature.getName());
-		// ConfigFiles.NAVIGATOR.save();
-		// }));
 		
 		// type
 		text = "Type: ";
@@ -324,14 +302,13 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 	protected void onRender(DrawContext context, int mouseX, int mouseY,
 		float partialTicks)
 	{
-		MatrixStack matrixStack = context.getMatrices();
+		Matrix3x2fStack matrixStack = context.getMatrices();
 		ClickGui gui = WurstClient.INSTANCE.getGui();
 		int txtColor = gui.getTxtColor();
 		
 		// title bar
 		context.drawCenteredTextWithShadow(client.textRenderer,
 			feature.getName(), middleX, 32, txtColor);
-		GL11.glEnable(GL11.GL_BLEND);
 		
 		// background
 		int bgx1 = middleX - 154;
@@ -344,24 +321,21 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 		int windowY1 = bgy1 + scroll + windowComponentY;
 		int windowY2 = windowY1 + window.getInnerHeight();
 		
-		setColorToBackground();
-		drawQuads(matrixStack, bgx1, bgy1, bgx2,
-			MathHelper.clamp(windowY1, bgy1, bgy3));
-		drawQuads(matrixStack, bgx1, MathHelper.clamp(windowY2, bgy1, bgy3),
-			bgx2, bgy2);
-		drawBoxShadow(matrixStack, bgx1, bgy1, bgx2, bgy2);
+		context.fill(bgx1, bgy1, bgx2, MathHelper.clamp(windowY1, bgy1, bgy3),
+			getBackgroundColor());
+		context.fill(bgx1, MathHelper.clamp(windowY2, bgy1, bgy3), bgx2, bgy2,
+			getBackgroundColor());
+		RenderUtils.drawBoxShadow2D(context, bgx1, bgy1, bgx2, bgy2);
 		
-		// scissor box
-		RenderUtils.scissorBox(bgx1, bgy1, bgx2, bgy3);
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+		context.enableScissor(bgx1, bgy1, bgx2, bgy3);
 		
 		// settings
 		gui.setTooltip("");
 		window.validate();
 		
 		window.setY(windowY1 - 13);
-		matrixStack.push();
-		matrixStack.translate(bgx1, windowY1, 0);
+		matrixStack.pushMatrix();
+		matrixStack.translate(bgx1, windowY1);
 		
 		{
 			int x1 = 0;
@@ -372,29 +346,11 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 			int x3 = x1 + 2;
 			int x5 = x2 - 2;
 			
-			Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-			Tessellator tessellator = RenderSystem.renderThreadTesselator();
-			BufferBuilder bufferBuilder = tessellator.getBuffer();
-			RenderSystem.setShader(GameRenderer::getPositionProgram);
-			
 			// window background
 			// left & right
-			setColorToBackground();
-			bufferBuilder.begin(VertexFormat.DrawMode.QUADS,
-				VertexFormats.POSITION);
-			bufferBuilder.vertex(matrix, x1, y3, 0).next();
-			bufferBuilder.vertex(matrix, x1, y2, 0).next();
-			bufferBuilder.vertex(matrix, x3, y2, 0).next();
-			bufferBuilder.vertex(matrix, x3, y3, 0).next();
-			bufferBuilder.vertex(matrix, x5, y3, 0).next();
-			bufferBuilder.vertex(matrix, x5, y2, 0).next();
-			bufferBuilder.vertex(matrix, x2, y2, 0).next();
-			bufferBuilder.vertex(matrix, x2, y3, 0).next();
-			tessellator.draw();
-			
-			setColorToBackground();
-			bufferBuilder.begin(VertexFormat.DrawMode.QUADS,
-				VertexFormats.POSITION);
+			int bgColor = getBackgroundColor();
+			context.fill(x1, y3, x3, y2, bgColor);
+			context.fill(x5, y3, x2, y2, bgColor);
 			
 			// window background
 			// between children
@@ -409,10 +365,7 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 				if(yc2 > bgy3 - windowY1)
 					break;
 				
-				bufferBuilder.vertex(matrix, xc1, yc2, 0).next();
-				bufferBuilder.vertex(matrix, xc1, yc1, 0).next();
-				bufferBuilder.vertex(matrix, xc2, yc1, 0).next();
-				bufferBuilder.vertex(matrix, xc2, yc2, 0).next();
+				context.fill(xc1, yc1, xc2, yc2, bgColor);
 			}
 			
 			// window background
@@ -427,12 +380,7 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 				yc1 = lastChild.getY() + lastChild.getHeight();
 			}
 			int yc2 = yc1 + 2;
-			bufferBuilder.vertex(matrix, xc1, yc2, 0).next();
-			bufferBuilder.vertex(matrix, xc1, yc1, 0).next();
-			bufferBuilder.vertex(matrix, xc2, yc1, 0).next();
-			bufferBuilder.vertex(matrix, xc2, yc2, 0).next();
-			
-			tessellator.draw();
+			context.fill(xc1, yc1, xc2, yc2, bgColor);
 		}
 		
 		for(int i = 0; i < window.countChildren(); i++)
@@ -446,7 +394,7 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 			child.render(context, mouseX - bgx1, mouseY - windowY1,
 				partialTicks);
 		}
-		matrixStack.pop();
+		matrixStack.popMatrix();
 		
 		// buttons
 		activeButton = null;
@@ -470,32 +418,32 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 			}else
 				alpha = 0.375F;
 			float[] rgb = buttonData.color.getColorComponents(null);
-			RenderSystem.setShaderColor(rgb[0], rgb[1], rgb[2], alpha);
 			
 			// button
-			drawBox(matrixStack, x1, y1, x2, y2);
+			drawBox(context, x1, y1, x2, y2,
+				RenderUtils.toIntColor(rgb, alpha));
 			
 			// text
+			context.state.goUpLayer();
 			context.drawCenteredTextWithShadow(client.textRenderer,
 				buttonData.buttonText, (x1 + x2) / 2,
-				y1 + (buttonData.height - 10) / 2 + 1,
-				buttonData.isLocked() ? 0xaaaaaa : buttonData.textColor);
-			GL11.glEnable(GL11.GL_BLEND);
+				y1 + (buttonData.height - 10) / 2 + 1, buttonData.isLocked()
+					? WurstColors.VERY_LIGHT_GRAY : buttonData.textColor);
+			context.state.goDownLayer();
 		}
 		
 		// text
-		RenderSystem.setShaderColor(1, 1, 1, 1);
 		int textY = bgy1 + scroll + 2;
+		context.state.goUpLayer();
 		for(String line : text.split("\n"))
 		{
 			context.drawText(client.textRenderer, line, bgx1 + 2, textY,
 				txtColor, false);
 			textY += client.textRenderer.fontHeight;
 		}
-		GL11.glEnable(GL11.GL_BLEND);
+		context.state.goDownLayer();
 		
-		// scissor box
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		context.disableScissor();
 		
 		// buttons below scissor box
 		for(ClickableWidget button : Screens.getButtons(this))
@@ -509,36 +457,27 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 			// color
 			boolean hovering =
 				mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
+			int buttonColor;
 			if(feature.isEnabled() && button == primaryButton)
-				// if(feature.isBlocked())
-				// RenderSystem.setShaderColor(hovering ? 1F : 0.875F, 0F, 0F,
-				// 0.25F);
-				// else
-				RenderSystem.setShaderColor(0F, hovering ? 1F : 0.875F, 0F,
-					0.25F);
-			else if(hovering)
-				RenderSystem.setShaderColor(0.375F, 0.375F, 0.375F, 0.25F);
+				buttonColor = hovering ? 0x4000FF00 : 0x4000E000;
 			else
-				RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 0.25F);
+				buttonColor = hovering ? 0x40606060 : 0x40404040;
 			
 			// button
-			drawBox(matrixStack, x1, y1, x2, y2);
+			drawBox(context, x1, y1, x2, y2, buttonColor);
 			
 			// text
 			String buttonText = button.getMessage().getString();
+			context.state.goUpLayer();
 			context.drawText(client.textRenderer, buttonText,
 				(x1 + x2 - client.textRenderer.getWidth(buttonText)) / 2,
 				y1 + 5, txtColor, false);
-			GL11.glEnable(GL11.GL_BLEND);
+			context.state.goDownLayer();
 		}
 		
 		// popups & tooltip
 		gui.renderPopups(context, mouseX, mouseY);
 		gui.renderTooltip(context, mouseX, mouseY);
-		
-		// GL resets
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glDisable(GL11.GL_BLEND);
 	}
 	
 	@Override
@@ -573,7 +512,7 @@ public final class NavigatorFeatureScreen extends NavigatorScreen
 	{
 		public String buttonText;
 		public Color color;
-		public int textColor = 0xffffff;
+		public int textColor = Colors.WHITE;
 		
 		public ButtonData(int x, int y, int width, int height,
 			String buttonText, int color)
