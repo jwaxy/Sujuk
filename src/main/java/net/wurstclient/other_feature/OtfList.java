@@ -19,6 +19,7 @@ public final class OtfList
 {
 	public final ChangelogOtf changelogOtf = new ChangelogOtf();
 	public final CleanUpOtf cleanUpOtf = new CleanUpOtf();
+	public final CompassOtf compassOtf = new CompassOtf();
 	public final DisableOtf disableOtf = new DisableOtf();
 	public final HackListOtf hackListOtf = new HackListOtf();
 	public final KeybindManagerOtf keybindManagerOtf = new KeybindManagerOtf();
