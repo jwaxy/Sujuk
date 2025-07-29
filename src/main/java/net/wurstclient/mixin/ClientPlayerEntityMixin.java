@@ -137,7 +137,7 @@ public class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		method = "move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V")
 	private void onMove(MovementType type, Vec3d offset, CallbackInfo ci)
 	{
-		EventManager.fire(PlayerMoveEvent.INSTANCE);
+		EventManager.fire(PlayerMoveEvent.get(type, offset));
 	}
 	
 	@Inject(at = @At("HEAD"),
