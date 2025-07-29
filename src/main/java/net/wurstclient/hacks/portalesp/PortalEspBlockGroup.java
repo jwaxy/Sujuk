@@ -23,7 +23,10 @@ import net.wurstclient.util.BlockUtils;
 
 public final class PortalEspBlockGroup
 {
-	protected final ArrayList<Box> boxes = new ArrayList<>();
+	protected final ArrayList<Box> individualBoxes = new ArrayList<>();
+	
+	protected final ArrayList<Box> combinedBoxes = new ArrayList<>();
+	
 	private final Block block;
 	private final ColorSetting color;
 	private final CheckboxSetting enabled;
@@ -41,8 +44,12 @@ public final class PortalEspBlockGroup
 		Box box = getBox(pos);
 		if(box == null)
 			return;
-		
-		boxes.add(box);
+		individualBoxes.add(box);
+	}
+	
+	public void addCombinedBox(Box box)
+	{
+		combinedBoxes.add(box);
 	}
 	
 	private Box getBox(BlockPos pos)
@@ -55,7 +62,8 @@ public final class PortalEspBlockGroup
 	
 	public void clear()
 	{
-		boxes.clear();
+		individualBoxes.clear();
+		combinedBoxes.clear();
 	}
 	
 	public boolean isEnabled()
@@ -80,7 +88,17 @@ public final class PortalEspBlockGroup
 	
 	public List<Box> getBoxes()
 	{
-		return Collections.unmodifiableList(boxes);
+		return Collections.unmodifiableList(
+			!combinedBoxes.isEmpty() ? combinedBoxes : individualBoxes);
 	}
 	
+	public List<Box> getIndividualBoxes()
+	{
+		return Collections.unmodifiableList(individualBoxes);
+	}
+	
+	public List<Box> getCombinedBoxes()
+	{
+		return Collections.unmodifiableList(combinedBoxes);
+	}
 }

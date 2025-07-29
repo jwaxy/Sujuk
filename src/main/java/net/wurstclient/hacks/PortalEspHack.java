@@ -8,8 +8,7 @@
 package net.wurstclient.hacks;
 
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiPredicate;
 
 import net.minecraft.block.BlockState;
@@ -18,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import net.wurstclient.Category;
 import net.wurstclient.events.CameraTransformViewBobbingListener;
 import net.wurstclient.events.PacketInputListener;
@@ -25,18 +25,24 @@ import net.wurstclient.events.RenderListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
 import net.wurstclient.hacks.portalesp.PortalEspBlockGroup;
-import net.wurstclient.settings.CheckboxSetting;
-import net.wurstclient.settings.ChunkAreaSetting;
-import net.wurstclient.settings.ColorSetting;
-import net.wurstclient.settings.EspStyleSetting;
+import net.wurstclient.settings.*;
 import net.wurstclient.util.RenderUtils;
-import net.wurstclient.util.chunk.ChunkSearcher.Result;
 import net.wurstclient.util.chunk.ChunkSearcherCoordinator;
 
 public final class PortalEspHack extends Hack implements UpdateListener,
 	CameraTransformViewBobbingListener, RenderListener
 {
 	private final EspStyleSetting style = new EspStyleSetting();
+	
+	enum BoxStyle
+	{
+		Cross,
+		Solid
+	}
+	
+	private final EnumSetting<BoxStyle> boxStyle =
+		new EnumSetting<>("Box style", "Rendering style for the grouped boxes.",
+			BoxStyle.values(), BoxStyle.Cross);
 	
 	private final PortalEspBlockGroup netherPortal =
 		new PortalEspBlockGroup(Blocks.NETHER_PORTAL,
@@ -86,6 +92,7 @@ public final class PortalEspHack extends Hack implements UpdateListener,
 		setCategory(Category.RENDER);
 		
 		addSetting(style);
+		addSetting(boxStyle);
 		groups.stream().flatMap(PortalEspBlockGroup::getSettings)
 			.forEach(this::addSetting);
 		addSetting(area);
@@ -148,13 +155,19 @@ public final class PortalEspHack extends Hack implements UpdateListener,
 		for(PortalEspBlockGroup group : groups)
 		{
 			if(!group.isEnabled())
-				return;
+				continue;
 			
-			List<Box> boxes = group.getBoxes();
+			List<Box> boxes = group.getCombinedBoxes();
 			int quadsColor = group.getColorI(0x40);
 			int linesColor = group.getColorI(0x80);
 			
-			RenderUtils.drawSolidBoxes(matrixStack, boxes, quadsColor, false);
+			if(boxStyle.getSelected() == BoxStyle.Cross)
+				RenderUtils.drawCrossBoxes(matrixStack, boxes, quadsColor,
+					false);
+			else
+				RenderUtils.drawSolidBoxes(matrixStack, boxes, quadsColor,
+					false);
+			
 			RenderUtils.drawOutlinedBoxes(matrixStack, boxes, linesColor,
 				false);
 		}
@@ -165,13 +178,13 @@ public final class PortalEspHack extends Hack implements UpdateListener,
 		for(PortalEspBlockGroup group : groups)
 		{
 			if(!group.isEnabled())
-				return;
+				continue;
 			
-			List<Box> boxes = group.getBoxes();
-			List<Vec3d> ends = boxes.stream().map(Box::getCenter).toList();
+			List<Box> boxes = group.getCombinedBoxes();
+			List<Vec3d> centers = boxes.stream().map(Box::getCenter).toList();
 			int color = group.getColorI(0x80);
 			
-			RenderUtils.drawTracers(matrixStack, partialTicks, ends, color,
+			RenderUtils.drawTracers(matrixStack, partialTicks, centers, color,
 				false);
 		}
 	}
@@ -179,17 +192,140 @@ public final class PortalEspHack extends Hack implements UpdateListener,
 	private void updateGroupBoxes()
 	{
 		groups.forEach(PortalEspBlockGroup::clear);
-		coordinator.getMatches().forEach(this::addToGroupBoxes);
+		
+		// Group results by block type
+		Map<PortalEspBlockGroup, List<BlockPos>> groupedPositions =
+			new HashMap<>();
+		coordinator.getMatches().forEach(result -> {
+			for(PortalEspBlockGroup group : groups)
+			{
+				if(result.state().getBlock() == group.getBlock())
+				{
+					groupedPositions
+						.computeIfAbsent(group, k -> new ArrayList<>())
+						.add(result.pos());
+					break;
+				}
+			}
+		});
+		
+		// For each group, find connected blocks and create combined boxes
+		for(Map.Entry<PortalEspBlockGroup, List<BlockPos>> entry : groupedPositions
+			.entrySet())
+		{
+			PortalEspBlockGroup group = entry.getKey();
+			List<BlockPos> positions = entry.getValue();
+			
+			// Find all connected blocks
+			List<Set<BlockPos>> connectedGroups =
+				findConnectedBlocks(positions);
+			
+			// Create combined boxes for each connected group
+			for(Set<BlockPos> connectedGroup : connectedGroups)
+			{
+				if(connectedGroup.isEmpty())
+					continue;
+				
+				// Calculate min and max coordinates
+				Box combinedBox = getCombinedBox(connectedGroup);
+				
+				group.addCombinedBox(combinedBox);
+			}
+		}
+		
 		groupsUpToDate = true;
 	}
 	
-	private void addToGroupBoxes(Result result)
+	private static Box getCombinedBox(Set<BlockPos> connectedGroup)
 	{
-		for(PortalEspBlockGroup group : groups)
-			if(result.state().getBlock() == group.getBlock())
+		Box combined = null;
+		for(BlockPos pos : connectedGroup)
+		{
+			BlockState state = MC.world.getBlockState(pos);
+			VoxelShape shape = state.getOutlineShape(MC.world, pos);
+			
+			if(shape.isEmpty())
 			{
-				group.add(result.pos());
-				break;
+				continue; // Skip blocks with no outline shape
 			}
+			
+			// Get the block's bounding box in world coordinates
+			Box box = shape.getBoundingBox().offset(pos);
+			
+			// Union with the combined box
+			if(combined == null)
+			{
+				combined = box;
+			}else
+			{
+				combined = combined.union(box);
+			}
+		}
+		
+		// Fallback for groups with no valid outline shapes
+		if(combined == null)
+		{
+			int minX = Integer.MAX_VALUE;
+			int minY = Integer.MAX_VALUE;
+			int minZ = Integer.MAX_VALUE;
+			int maxX = Integer.MIN_VALUE;
+			int maxY = Integer.MIN_VALUE;
+			int maxZ = Integer.MIN_VALUE;
+			
+			for(BlockPos pos : connectedGroup)
+			{
+				minX = Math.min(minX, pos.getX());
+				minY = Math.min(minY, pos.getY());
+				minZ = Math.min(minZ, pos.getZ());
+				maxX = Math.max(maxX, pos.getX());
+				maxY = Math.max(maxY, pos.getY());
+				maxZ = Math.max(maxZ, pos.getZ());
+			}
+			combined = new Box(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
+		}
+		
+		return combined;
+	}
+	
+	private List<Set<BlockPos>> findConnectedBlocks(List<BlockPos> positions)
+	{
+		List<Set<BlockPos>> connectedGroups = new ArrayList<>();
+		Set<BlockPos> remainingPositions = new HashSet<>(positions);
+		
+		while(!remainingPositions.isEmpty())
+		{
+			BlockPos start = remainingPositions.iterator().next();
+			Set<BlockPos> currentGroup = new HashSet<>();
+			Queue<BlockPos> queue = new LinkedList<>();
+			queue.add(start);
+			
+			while(!queue.isEmpty())
+			{
+				BlockPos current = queue.poll();
+				if(!remainingPositions.contains(current))
+					continue;
+				
+				currentGroup.add(current);
+				remainingPositions.remove(current);
+				
+				// Check all 6 adjacent blocks
+				for(BlockPos neighbor : Arrays.asList(current.north(),
+					current.east(), current.south(), current.west(),
+					current.up(), current.down()))
+				{
+					if(remainingPositions.contains(neighbor))
+					{
+						queue.add(neighbor);
+					}
+				}
+			}
+			
+			if(!currentGroup.isEmpty())
+			{
+				connectedGroups.add(currentGroup);
+			}
+		}
+		
+		return connectedGroups;
 	}
 }
