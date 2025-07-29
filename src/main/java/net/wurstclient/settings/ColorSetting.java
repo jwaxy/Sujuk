@@ -150,10 +150,15 @@ public final class ColorSetting extends Setting
 	{
 		if(!JsonUtils.isString(json))
 			return;
-		
+		String value = json.getAsString();
+		if(Objects.equals(value, "rainbow"))
+		{
+			rainbow = true;
+			return;
+		}
 		try
 		{
-			setColor(ColorUtils.parseHex(json.getAsString()));
+			setColor(ColorUtils.parseHex(value));
 		}catch(JsonException e)
 		{
 			e.printStackTrace();
@@ -164,7 +169,8 @@ public final class ColorSetting extends Setting
 	@Override
 	public JsonElement toJson()
 	{
-		return new JsonPrimitive(ColorUtils.toHex(getColor()));
+		return new JsonPrimitive(
+			rainbow ? "rainbow" : ColorUtils.toHex(getColor()));
 	}
 	
 	@Override
