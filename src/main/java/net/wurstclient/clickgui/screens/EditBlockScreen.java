@@ -68,10 +68,7 @@ public final class EditBlockScreen extends Screen
 	private void done()
 	{
 		String nameOrId = blockField.getText();
-		Block block = BlockUtils.getBlockFromNameOrID(nameOrId);
-		
-		if(block != null)
-			setting.setBlock(block);
+		setting.setBlockName(nameOrId);
 		
 		client.setScreen(prevScreen);
 	}
@@ -131,7 +128,9 @@ public final class EditBlockScreen extends Screen
 		
 		matrixStack.popMatrix();
 		
-		String nameOrId = blockField.getText();
+		String nameOrId = blockField.getText().split("\\[")[0]; // not the best
+																// way but
+																// whatever
 		Block blockToAdd = BlockUtils.getBlockFromNameOrID(nameOrId);
 		
 		if(blockToAdd == null)

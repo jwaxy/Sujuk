@@ -120,6 +120,11 @@ public abstract class AbstractChunkCoordinator implements PacketInputListener
 		setQuery((pos, state) -> block == state.getBlock());
 	}
 	
+	public void setTargetBlockState(BlockState targetState)
+	{
+		setQuery((pos, state) -> targetState == state);
+	}
+	
 	protected HashSet<ChunkPos> clearChunksToUpdate()
 	{
 		synchronized(chunksToUpdate)

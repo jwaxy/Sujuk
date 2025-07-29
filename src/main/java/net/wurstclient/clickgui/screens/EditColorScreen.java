@@ -14,8 +14,6 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
-import net.wurstclient.clickgui.components.CheckboxComponent;
-import net.wurstclient.settings.CheckboxSetting;
 import net.wurstclient.util.RenderUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -132,10 +130,11 @@ public final class EditColorScreen extends Screen
 		doneButton = ButtonWidget.builder(Text.literal("Done"), b -> done())
 			.dimensions(fieldsX, height - 30, 200, 20).build();
 		addDrawableChild(doneButton);
-
-		rainbowButton = ButtonWidget.builder(getRainbowButtonMessage(), b -> rainbowPress())
+		
+		rainbowButton =
+			ButtonWidget.builder(getRainbowButtonMessage(), b -> rainbowPress())
 				.dimensions(fieldsX + 210, height - 30, 100, 20).build();
-
+		
 		addDrawableChild(rainbowButton);
 	}
 	
@@ -145,16 +144,20 @@ public final class EditColorScreen extends Screen
 			return;
 		
 		Color newColor;
-
-		if (rainbow) {
+		
+		if(rainbow)
+		{
 			float[] rainbowColor = RenderUtils.getRainbowColor();
-			newColor = new Color(rainbowColor[0], rainbowColor[1], rainbowColor[2]);
-		} else {
-			if (hex)
-				newColor = ColorUtils.tryParseHex("#" + hexValueField.getText());
+			newColor =
+				new Color(rainbowColor[0], rainbowColor[1], rainbowColor[2]);
+		}else
+		{
+			if(hex)
+				newColor =
+					ColorUtils.tryParseHex("#" + hexValueField.getText());
 			else
 				newColor = ColorUtils.tryParseRGB(redValueField.getText(),
-						greenValueField.getText(), blueValueField.getText());
+					greenValueField.getText(), blueValueField.getText());
 		}
 		
 		if(newColor == null || newColor.equals(color))
@@ -175,12 +178,14 @@ public final class EditColorScreen extends Screen
 		colorSetting.setColor(color);
 		client.setScreen(prevScreen);
 	}
-
-	private Text getRainbowButtonMessage() {
+	
+	private Text getRainbowButtonMessage()
+	{
 		return Text.of("Rainbow: " + (rainbow ? "Enabled" : "Disabled"));
 	}
-
-	private void rainbowPress() {
+	
+	private void rainbowPress()
+	{
 		rainbow = !rainbow;
 		rainbowButton.setMessage(getRainbowButtonMessage());
 	}
@@ -240,8 +245,9 @@ public final class EditColorScreen extends Screen
 		
 		for(Drawable drawable : drawables)
 			drawable.render(context, mouseX, mouseY, partialTicks);
-
-		if (rainbow) updateColor(false);
+		
+		if(rainbow)
+			updateColor(false);
 	}
 	
 	@Override
@@ -302,7 +308,7 @@ public final class EditColorScreen extends Screen
 					setColor(color);
 			}
 		}
-
+		
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	

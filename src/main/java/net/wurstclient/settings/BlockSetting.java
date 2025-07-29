@@ -8,8 +8,9 @@
 package net.wurstclient.settings;
 
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -17,31 +18,36 @@ import com.google.gson.JsonPrimitive;
 
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.wurstclient.WurstClient;
 import net.wurstclient.clickgui.Component;
 import net.wurstclient.clickgui.components.BlockComponent;
 import net.wurstclient.keybinds.PossibleKeybind;
 import net.wurstclient.util.BlockUtils;
-import net.wurstclient.util.json.JsonException;
 import net.wurstclient.util.json.JsonUtils;
 import net.wurstclient.util.text.WText;
 
 public final class BlockSetting extends Setting
 {
-	private String blockName = "";
+	private String userInput = "";
+	private BlockState blockState;
 	private final String defaultName;
 	private final boolean allowAir;
+	private boolean isDefaultState;
+	
+	// Regex to parse block states like
+	// "minecraft:block[prop1:value1;prop2:value2]"
+	private static final Pattern BLOCK_STATE_PATTERN = Pattern.compile(
+		"^(?<namespace>[a-z0-9_.-]+:)?(?<block>[a-z0-9_.-]+)(?:\\[(?<props>.+)])?$");
 	
 	public BlockSetting(String name, WText description, String blockName,
 		boolean allowAir)
 	{
 		super(name, description);
 		
-		Block block = BlockUtils.getBlockFromNameOrID(blockName);
-		Objects.requireNonNull(block);
-		this.blockName = BlockUtils.getName(block);
-		
-		defaultName = this.blockName;
+		this.blockState = parseBlockInput(blockName, true);
+		this.userInput = blockName;
+		this.defaultName = BlockUtils.getName(blockState.getBlock());
 		this.allowAir = allowAir;
 	}
 	
@@ -57,51 +63,126 @@ public final class BlockSetting extends Setting
 	}
 	
 	/**
+	 * Parses both simple block names and block state strings
+	 */
+	private BlockState parseBlockInput(String input, boolean allowAir)
+	{
+		if(input == null || input.isEmpty())
+			throw new IllegalArgumentException("Block name cannot be empty");
+		
+		Matcher matcher = BLOCK_STATE_PATTERN.matcher(input);
+		if(!matcher.matches())
+			throw new IllegalArgumentException(
+				"Invalid block format: " + input);
+		
+		String namespace = matcher.group("namespace");
+		String blockName = matcher.group("block");
+		String props = matcher.group("props");
+		
+		// Construct full block ID
+		String fullBlockId = (namespace != null) ? namespace + blockName
+			: "minecraft:" + blockName;
+		
+		// Get the block
+		Block block = BlockUtils.getBlockFromNameOrID(fullBlockId);
+		if(block == null)
+			throw new IllegalArgumentException("Unknown block: " + fullBlockId);
+		
+		if(!allowAir && block instanceof AirBlock)
+			throw new IllegalArgumentException("Air blocks are not allowed");
+		
+		// If no properties, return default state
+		if(props == null || props.trim().isEmpty())
+		{
+			this.isDefaultState = true;
+			return block.getDefaultState();
+		}
+		this.isDefaultState = false;
+		
+		// Parse properties
+		return BlockUtils.parseBlockState(block, props);
+	}
+	
+	/**
 	 * @return this setting's {@link Block}. Cannot be null.
 	 */
 	public Block getBlock()
 	{
-		return BlockUtils.getBlockFromName(blockName);
+		return blockState.getBlock();
+	}
+	
+	/**
+	 * @return the full block state including properties
+	 */
+	public BlockState getBlockState()
+	{
+		return blockState;
 	}
 	
 	public String getBlockName()
 	{
-		return blockName;
+		return userInput; // this what they actually want
+		// return BlockUtils.getName(blockState.getBlock());
 	}
 	
 	public String getShortBlockName()
 	{
-		return blockName.replace("minecraft:", "");
+		return getBlockName().replace("minecraft:", "");
+	}
+	
+	/**
+	 * @return the original user input (either simple name or full state string)
+	 */
+	public String getUserInput()
+	{
+		return userInput;
+	}
+	
+	public boolean isDefaultState()
+	{
+		return isDefaultState;
 	}
 	
 	public void setBlock(Block block)
 	{
-		if(block == null)
+		setBlockState(block.getDefaultState());
+	}
+	
+	public void setBlockState(BlockState state)
+	{
+		if(state == null)
 			return;
 		
-		if(!allowAir && block instanceof AirBlock)
+		if(!allowAir && state.getBlock() instanceof AirBlock)
 			return;
 		
-		String newName = Objects.requireNonNull(BlockUtils.getName(block));
-		
-		if(blockName.equals(newName))
+		if(state.equals(blockState))
 			return;
 		
-		blockName = newName;
+		blockState = state;
+		userInput = BlockUtils.getName(state.getBlock()); // Default to simple
+															// name
 		WurstClient.INSTANCE.saveSettings();
 	}
 	
-	public void setBlockName(String blockName)
+	public void setBlockName(String input)
 	{
-		Block block = BlockUtils.getBlockFromNameOrID(blockName);
-		Objects.requireNonNull(block);
-		
-		setBlock(block);
+		try
+		{
+			blockState = parseBlockInput(input, allowAir);
+			userInput = input;
+			WurstClient.INSTANCE.saveSettings();
+		}catch(IllegalArgumentException e)
+		{
+			resetToDefault();
+		}
 	}
 	
 	public void resetToDefault()
 	{
-		blockName = defaultName;
+		blockState =
+			BlockUtils.getBlockFromNameOrID(defaultName).getDefaultState();
+		userInput = defaultName;
 		WurstClient.INSTANCE.saveSettings();
 	}
 	
@@ -116,18 +197,12 @@ public final class BlockSetting extends Setting
 	{
 		try
 		{
-			String newName = JsonUtils.getAsString(json);
+			String input = JsonUtils.getAsString(json);
 			
-			Block newBlock = BlockUtils.getBlockFromNameOrID(newName);
-			if(newBlock == null)
-				throw new JsonException();
+			blockState = parseBlockInput(input, allowAir);
+			userInput = input;
 			
-			if(!allowAir && newBlock instanceof AirBlock)
-				throw new JsonException();
-			
-			blockName = BlockUtils.getName(newBlock);
-			
-		}catch(JsonException e)
+		}catch(Exception e)
 		{
 			e.printStackTrace();
 			resetToDefault();
@@ -137,7 +212,7 @@ public final class BlockSetting extends Setting
 	@Override
 	public JsonElement toJson()
 	{
-		return new JsonPrimitive(blockName);
+		return new JsonPrimitive(userInput);
 	}
 	
 	@Override
@@ -161,10 +236,6 @@ public final class BlockSetting extends Setting
 		command += getName().toLowerCase().replace(" ", "_") + " ";
 		
 		LinkedHashSet<PossibleKeybind> pkb = new LinkedHashSet<>();
-		// Can't just list all the blocks here. Would need to change UI to allow
-		// user to choose a block after selecting this option.
-		// pkb.add(new PossibleKeybind(command + "dirt", "Set " + fullName + "
-		// to dirt"));
 		pkb.add(new PossibleKeybind(command + "reset", "Reset " + fullName));
 		
 		return pkb;

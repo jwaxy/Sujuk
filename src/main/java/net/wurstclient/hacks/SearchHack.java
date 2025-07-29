@@ -7,6 +7,7 @@
  */
 package net.wurstclient.hacks;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.vertex.VertexFormat.DrawMode;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -29,6 +30,7 @@ import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
 import net.wurstclient.settings.BlockSetting;
 import net.wurstclient.settings.ChunkAreaSetting;
+import net.wurstclient.settings.ColorSetting;
 import net.wurstclient.settings.SliderSetting;
 import net.wurstclient.settings.SliderSetting.ValueDisplay;
 import net.wurstclient.util.BlockVertexCompiler;
@@ -39,6 +41,7 @@ import net.wurstclient.util.RenderUtils;
 import net.wurstclient.util.RotationUtils;
 import net.wurstclient.util.chunk.ChunkSearcher;
 import net.wurstclient.util.chunk.ChunkSearcherCoordinator;
+import net.wurstclient.util.text.WText;
 
 @SearchTags({"BlockESP", "block esp"})
 public final class SearchHack extends Hack
@@ -46,7 +49,7 @@ public final class SearchHack extends Hack
 {
 	private final BlockSetting block = new BlockSetting("Block",
 		"The type of block to search for.", "minecraft:diamond_ore", false);
-	private Block lastBlock;
+	private BlockState lastBlockState;
 	
 	private final ChunkAreaSetting area = new ChunkAreaSetting("Area",
 		"The area around the player to search in.\n"
@@ -58,6 +61,9 @@ public final class SearchHack extends Hack
 		4, 3, 6, 1, ValueDisplay.LOGARITHMIC);
 	private int prevLimit;
 	private boolean notify;
+	
+	private final ColorSetting color =
+		new ColorSetting("Color", WText.empty(), Color.RED, true);
 	
 	private final ChunkSearcherCoordinator coordinator =
 		new ChunkSearcherCoordinator(area);
@@ -77,6 +83,7 @@ public final class SearchHack extends Hack
 		addSetting(block);
 		addSetting(area);
 		addSetting(limit);
+		addSetting(color);
 	}
 	
 	@Override
@@ -89,8 +96,8 @@ public final class SearchHack extends Hack
 	@Override
 	protected void onEnable()
 	{
-		lastBlock = block.getBlock();
-		coordinator.setTargetBlock(lastBlock);
+		lastBlockState = block.getBlockState();
+		setTarget();
 		prevLimit = limit.getValueI();
 		notify = true;
 		
@@ -126,11 +133,11 @@ public final class SearchHack extends Hack
 		boolean searchersChanged = false;
 		
 		// clear ChunkSearchers if block has changed
-		Block currentBlock = block.getBlock();
-		if(currentBlock != lastBlock)
+		BlockState currentState = block.getBlockState();
+		if(currentState != lastBlockState)
 		{
-			lastBlock = currentBlock;
-			coordinator.setTargetBlock(lastBlock);
+			lastBlockState = currentState;
+			setTarget();
 			searchersChanged = true;
 		}
 		
@@ -178,11 +185,18 @@ public final class SearchHack extends Hack
 		matrixStack.push();
 		RenderUtils.applyRegionalRenderOffset(matrixStack, bufferRegion);
 		
-		float[] rainbow = RenderUtils.getRainbowColor();
-		vertexBuffer.draw(matrixStack, WurstRenderLayers.ESP_QUADS, rainbow,
-			0.5F);
+		vertexBuffer.draw(matrixStack, WurstRenderLayers.ESP_QUADS,
+			color.getColorF(), 0.5F);
 		
 		matrixStack.pop();
+	}
+	
+	private void setTarget()
+	{
+		if(block.isDefaultState())
+			coordinator.setTargetBlock(block.getBlock());
+		else
+			coordinator.setTargetBlockState(block.getBlockState());
 	}
 	
 	private void stopBuildingBuffer()
