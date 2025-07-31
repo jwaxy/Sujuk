@@ -8,7 +8,6 @@
 package net.wurstclient.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -252,102 +251,42 @@ public enum BlockUtils
 	}
 	
 	/**
-	 * Parses a block state string and applies it to the given block's default
-	 * state
-	 *
-	 * @param block
-	 *            The block to get the default state from
-	 * @param stateString
-	 *            The formatted state string (e.g., "axis:z;powered:true")
-	 * @return A new BlockState with the parsed properties applied
-	 * @throws IllegalArgumentException
-	 *             If the string format is invalid or properties don't exist
+	 * Checks if a block state matches our properties (subset match)
 	 */
-	public static BlockState parseBlockState(Block block, String stateString)
-		throws IllegalArgumentException
+	public static boolean stateMatches(BlockState state, Block block,
+		Map<String, String> properties)
 	{
-		BlockState state = block.getDefaultState();
-		
-		if(stateString == null || stateString.trim().isEmpty())
+		if(state.getBlock() != block)
 		{
-			return state;
+			return false;
 		}
 		
-		// Parse the properties string into key-value pairs
-		Map<String, String> properties = parseProperties(stateString);
-		
-		// Apply each property to the state
 		for(Map.Entry<String, String> entry : properties.entrySet())
 		{
-			String propName = entry.getKey();
-			String propValue = entry.getValue();
-			
-			// Find the property in the block's state manager
-			Property<?> property = findProperty(state, propName);
-			
-			if(property == null)
+			Property<?> prop = findProperty(state, entry.getKey());
+			if(prop == null)
 			{
-				throw new IllegalArgumentException(
-					"Block " + Registries.BLOCK.getId(block)
-						+ " doesn't have property: " + propName);
+				return false; // Property doesn't exist
 			}
 			
-			// Parse and apply the property value
-			state = applyProperty(state, property, propValue);
-		}
-		
-		return state;
-	}
-	
-	private static Map<String, String> parseProperties(String stateString)
-	{
-		Map<String, String> properties = new HashMap<>();
-		String[] pairs = stateString.split(";");
-		
-		for(String pair : pairs)
-		{
-			pair = pair.trim();
-			if(pair.isEmpty())
-				continue;
-			
-			String[] keyValue = pair.split(":", 2);
-			if(keyValue.length != 2)
+			if(!state.get(prop).toString().equals(entry.getValue()))
 			{
-				throw new IllegalArgumentException("Invalid property format: "
-					+ pair + ". Expected format: 'property:value'");
+				return false;
 			}
-			
-			String key = keyValue[0].trim();
-			String value = keyValue[1].trim();
-			properties.put(key, value);
 		}
 		
-		return properties;
+		return true;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static <T extends Comparable<T>> Property<T> findProperty(
-		BlockState state, String name)
+	private static Property<?> findProperty(BlockState state, String name)
 	{
 		for(Property<?> prop : state.getProperties())
 		{
 			if(prop.getName().equals(name))
 			{
-				return (Property<T>)prop;
+				return prop;
 			}
 		}
 		return null;
-	}
-	
-	private static <T extends Comparable<T>> BlockState applyProperty(
-		BlockState state, Property<T> property, String value)
-	{
-		// Try to parse the value
-		T parsedValue = property.parse(value)
-			.orElseThrow(() -> new IllegalArgumentException("Invalid value '"
-				+ value + "' for property " + property.getName()
-				+ ". Valid values: " + property.getValues()));
-		
-		return state.with(property, parsedValue);
 	}
 }

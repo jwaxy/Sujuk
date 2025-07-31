@@ -8,16 +8,13 @@
 package net.wurstclient.hacks;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.vertex.VertexFormat.DrawMode;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -49,7 +46,7 @@ public final class SearchHack extends Hack
 {
 	private final BlockSetting block = new BlockSetting("Block",
 		"The type of block to search for.", "minecraft:diamond_ore", false);
-	private BlockState lastBlockState;
+	private String lastBlockInput;
 	
 	private final ChunkAreaSetting area = new ChunkAreaSetting("Area",
 		"The area around the player to search in.\n"
@@ -96,7 +93,7 @@ public final class SearchHack extends Hack
 	@Override
 	protected void onEnable()
 	{
-		lastBlockState = block.getBlockState();
+		lastBlockInput = block.getUserInput();
 		setTarget();
 		prevLimit = limit.getValueI();
 		notify = true;
@@ -133,10 +130,10 @@ public final class SearchHack extends Hack
 		boolean searchersChanged = false;
 		
 		// clear ChunkSearchers if block has changed
-		BlockState currentState = block.getBlockState();
-		if(currentState != lastBlockState)
+		String currentBlockInput = block.getUserInput();
+		if(!Objects.equals(currentBlockInput, lastBlockInput))
 		{
-			lastBlockState = currentState;
+			lastBlockInput = currentBlockInput;
 			setTarget();
 			searchersChanged = true;
 		}
@@ -193,10 +190,11 @@ public final class SearchHack extends Hack
 	
 	private void setTarget()
 	{
-		if(block.isDefaultState())
+		if(block.getProperties().isEmpty())
 			coordinator.setTargetBlock(block.getBlock());
 		else
-			coordinator.setTargetBlockState(block.getBlockState());
+			coordinator.setTargetBlockWithProperties(block.getBlock(),
+				block.getProperties());
 	}
 	
 	private void stopBuildingBuffer()

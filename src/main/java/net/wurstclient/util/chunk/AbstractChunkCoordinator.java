@@ -7,12 +7,7 @@
  */
 package net.wurstclient.util.chunk;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 
 import net.minecraft.block.Block;
@@ -24,6 +19,7 @@ import net.minecraft.world.dimension.DimensionType;
 import net.wurstclient.WurstClient;
 import net.wurstclient.events.PacketInputListener;
 import net.wurstclient.settings.ChunkAreaSetting;
+import net.wurstclient.util.BlockUtils;
 
 public abstract class AbstractChunkCoordinator implements PacketInputListener
 {
@@ -120,9 +116,11 @@ public abstract class AbstractChunkCoordinator implements PacketInputListener
 		setQuery((pos, state) -> block == state.getBlock());
 	}
 	
-	public void setTargetBlockState(BlockState targetState)
+	public void setTargetBlockWithProperties(Block block,
+		Map<String, String> properties)
 	{
-		setQuery((pos, state) -> targetState == state);
+		setQuery(
+			(pos, state) -> BlockUtils.stateMatches(state, block, properties));
 	}
 	
 	protected HashSet<ChunkPos> clearChunksToUpdate()
